@@ -124,10 +124,6 @@ public class Setup {
 						String name = props.getProperty("name_" + i);
 						if (name == null)
 							break;
-						System.out.println("Adding: " + "<tr><td>" + name
-								+ "</td><td><input type=\"text\" name=\""
-								+ name + "\" id=\"" + name
-								+ "\" size=\"40\"/></td></tr> to index.html");
 						bw.write("<tr><td>" + name
 								+ "</td><td><input type=\"text\" name=\""
 								+ name + "\" id=\"" + name
@@ -164,13 +160,13 @@ public class Setup {
 		
 		try {
 			Runtime.getRuntime()
-					.exec("cp -r /opt/solr/solr/example " + solrcore).waitFor();
+					.exec("cp -r /opt/solr/solr/example /opt/solr/solr/" + solrcore).waitFor();
 			Runtime.getRuntime()
 					.exec("mv /opt/solr/solr/" + solrcore
 							+ "/solr/collection1 /opt/solr/solr/" + solrcore
 							+ "/solr/" + solrcore).waitFor();
 			Runtime.getRuntime()
-					.exec(path + "schema.xml /opt/solr/solr/" + solrcore
+					.exec("cp "+path + "schema.xml /opt/solr/solr/" + solrcore
 							+ "/solr/" + solrcore + "/conf").waitFor();
 
 			BufferedReader br = new BufferedReader(new InputStreamReader(
@@ -189,22 +185,22 @@ public class Setup {
 				}
 				if(line.contains("</directoryFactory>")) {
 					inDirFac= false;
-					bw.write("<directoryFactory name=\"DirectoryFactory\" class=\"solr.HdfsDirectoryFactory\">"
-					  +"str name=\"solr.hdfs.home\">hdfs://sandbox:8020/user/solr</str>"
-					  +"<bool name=\"solr.hdfs.blockcache.enabled\">true</bool>"
-					  +"<int name=\"solr.hdfs.blockcache.slab.count\">1</int>"
-					  +"<bool name=\"solr.hdfs.blockcache.direct.memory.allocation\">true</bool>"
-					  +"<int name=\"solr.hdfs.blockcache.blocksperbank\">16384</int>"
-					  +"<bool name=\"solr.hdfs.blockcache.read.enabled\">true</bool>"
-					  +"<bool name=\"solr.hdfs.blockcache.write.enabled\">true</bool>"
-					  +"<bool name=\"solr.hdfs.nrtcachingdirectory.enable\">true</bool>"
-					  +"<int name=\"solr.hdfs.nrtcachingdirectory.maxmergesizemb\">16</int>"
-					  +"<int name=\"solr.hdfs.nrtcachingdirectory.maxcachedmb\">192</int>");
+					bw.write("<directoryFactory name=\"DirectoryFactory\" class=\"solr.HdfsDirectoryFactory\">\n"
+					  +"str name=\"solr.hdfs.home\">hdfs://sandbox:8020/user/solr</str>\n"
+					  +"<bool name=\"solr.hdfs.blockcache.enabled\">true</bool>\n"
+					  +"<int name=\"solr.hdfs.blockcache.slab.count\">1</int>\n"
+					  +"<bool name=\"solr.hdfs.blockcache.direct.memory.allocation\">true</bool>\n"
+					  +"<int name=\"solr.hdfs.blockcache.blocksperbank\">16384</int>\n"
+					  +"<bool name=\"solr.hdfs.blockcache.read.enabled\">true</bool>\n"
+					  +"<bool name=\"solr.hdfs.blockcache.write.enabled\">true</bool>\n"
+					  +"<bool name=\"solr.hdfs.nrtcachingdirectory.enable\">true</bool>\n"
+					  +"<int name=\"solr.hdfs.nrtcachingdirectory.maxmergesizemb\">16</int>\n"
+					  +"<int name=\"solr.hdfs.nrtcachingdirectory.maxcachedmb\">192</int></directoryFactory>\n");
 				}
 				if(inDirFac) {
 					line="";
 				}
-				bw.write(line);
+				bw.write(line+"\n");
 			}
 			br.close();
 			bw.close();
@@ -212,7 +208,7 @@ public class Setup {
 			e.printStackTrace();
 		}
 		Runtime.getRuntime()
-		.exec(path + "solrconfig.xml /opt/solr/solr/" + solrcore
+		.exec("cp "+path + "solrconfig.xml /opt/solr/solr/" + solrcore
 				+ "/solr/" + solrcore + "/conf").waitFor();
 	}
 
