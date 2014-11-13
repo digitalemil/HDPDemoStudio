@@ -91,7 +91,7 @@
 		function onGeoSuccess(position) {
 			latitude = position.coords.latitude;
 			longitude = position.coords.longitude;
-			loc.value = latitude + ":" + longitude;
+			loc.value = latitude + "," + longitude;
 		}
 
 		function onGeoError(error) {

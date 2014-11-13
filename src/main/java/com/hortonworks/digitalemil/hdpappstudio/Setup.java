@@ -216,7 +216,7 @@ public class Setup {
 				+ "/solr/" + solrcore + "/conf").waitFor();
 		
 		try {
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/opt/solr/solr/" + solrcore + "/solr/"+ solrcore + "/conf/core.properties")));
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/opt/solr/solr/" + solrcore + "/solr/"+ solrcore + "/core.properties")));
 			bw.write("name="+solrcore+"\n");
 			bw.close();
 		}
