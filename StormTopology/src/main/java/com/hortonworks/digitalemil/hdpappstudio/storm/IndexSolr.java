@@ -94,11 +94,9 @@ public class IndexSolr extends BaseRichBolt {
 	public void execute(Tuple tuple) {
 		JSONObject json= new JSONObject();
 		
-		System.out.println("SolrIndexer execute() ");
 		for(int i= 0; i< tuple.size(); i++) {
 			json.put(tuple.getFields().get(i), tuple.getString(i));
 		}
-		json.put("id", json.get("user")+":"+System.currentTimeMillis());
 		
 		System.out.println("SolrIndexer: "+json.toString());
 		if(post(SOLRURL, "["+json.toString()+"]")) {

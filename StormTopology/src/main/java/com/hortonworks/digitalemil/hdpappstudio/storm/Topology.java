@@ -90,7 +90,7 @@ public class Topology {
 			
 		builder.setBolt(TUPLETRANSFORMER_BOLT_ID, tt).shuffleGrouping(KAFKA_SPOUT_ID);
 		
-		//builder.setBolt(INDEXSOLR_BOLT_ID, index).shuffleGrouping(TUPLETRANSFORMER_BOLT_ID);
+		builder.setBolt(INDEXSOLR_BOLT_ID, index).shuffleGrouping(TUPLETRANSFORMER_BOLT_ID);
 		builder.setBolt(HBASE__BOLT_ID, hbolt).shuffleGrouping(TUPLETRANSFORMER_BOLT_ID);
 		
 		

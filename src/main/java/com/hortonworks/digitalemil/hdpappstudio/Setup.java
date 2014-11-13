@@ -188,7 +188,7 @@ public class Setup {
 				if(line.contains("</directoryFactory>")) {
 					inDirFac= false;
 					bw.write("<directoryFactory name=\"DirectoryFactory\" class=\"solr.HdfsDirectoryFactory\">\n"
-					  +"str name=\"solr.hdfs.home\">hdfs://sandbox:8020/user/solr</str>\n"
+					  +"<str name=\"solr.hdfs.home\">hdfs://sandbox:8020/user/solr</str>\n"
 					  +"<bool name=\"solr.hdfs.blockcache.enabled\">true</bool>\n"
 					  +"<int name=\"solr.hdfs.blockcache.slab.count\">1</int>\n"
 					  +"<bool name=\"solr.hdfs.blockcache.direct.memory.allocation\">true</bool>\n"
@@ -212,6 +212,12 @@ public class Setup {
 		Runtime.getRuntime()
 		.exec("cp "+path + "solrconfig.xml /opt/solr/solr/" + solrcore
 				+ "/solr/" + solrcore + "/conf").waitFor();
+		
+		Runtime.getRuntime()
+		.exec("echo name="+solrcore+" >/opt/solr/solr/"+solrcore+"/solr/"+solrcore+"/core.properties");
 	}
 
 }
+
+
+//storm jar HDPAppStudioStormTopology-0.1.1-distribution.jar com.hortonworks.digitalemil.hdpappstudio.storm.Topology HDPAppStudio 127.0.0.1:2181 http://127.0.0.1:8983/solr/hdp/update/json?commit=true mytab all default id location foo bar
