@@ -160,6 +160,8 @@ public class Setup {
 		
 		try {
 			Runtime.getRuntime()
+			.exec("rm -fr /opt/solr/solr/" + solrcore).waitFor();
+			Runtime.getRuntime()
 					.exec("cp -r /opt/solr/solr/example /opt/solr/solr/" + solrcore).waitFor();
 			Runtime.getRuntime()
 					.exec("mv /opt/solr/solr/" + solrcore
@@ -195,7 +197,7 @@ public class Setup {
 					  +"<bool name=\"solr.hdfs.blockcache.write.enabled\">true</bool>\n"
 					  +"<bool name=\"solr.hdfs.nrtcachingdirectory.enable\">true</bool>\n"
 					  +"<int name=\"solr.hdfs.nrtcachingdirectory.maxmergesizemb\">16</int>\n"
-					  +"<int name=\"solr.hdfs.nrtcachingdirectory.maxcachedmb\">192</int></directoryFactory>\n");
+					  +"<int name=\"solr.hdfs.nrtcachingdirectory.maxcachedmb\">192</int>\n");
 				}
 				if(inDirFac) {
 					line="";
