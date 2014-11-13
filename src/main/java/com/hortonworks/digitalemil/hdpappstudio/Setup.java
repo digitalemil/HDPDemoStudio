@@ -3,11 +3,13 @@ package com.hortonworks.digitalemil.hdpappstudio;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.util.Properties;
 
@@ -213,8 +215,14 @@ public class Setup {
 		.exec("cp "+path + "solrconfig.xml /opt/solr/solr/" + solrcore
 				+ "/solr/" + solrcore + "/conf").waitFor();
 		
-		Runtime.getRuntime()
-		.exec("sed -i 's/collection1/"+solrcore+"/' /opt/solr/solr/"+solrcore+"/solr/"+solrcore+"/core.properties").waitFor();
+		try {
+			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/opt/solr/solr/" + solrcore + "/solr/"+ solrcore + "/conf/core.properties")));
+			bw.write("name="+solrcore+"\n");
+			bw.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 }
