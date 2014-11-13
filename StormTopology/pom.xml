@@ -1,0 +1,160 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.hortonworks.digitalemil</groupId>
+	<artifactId>HDPAppStudioStormTopology</artifactId>
+	<version>0.1.1</version>
+	<packaging>jar</packaging>
+	<!-- -->
+	<name>HDPAppStudio-StormTopology</name>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<developers>
+		<developer>
+			<id>digitalemil</id>
+			<name>Emil A. Siemes</name>
+			<email>esiemes at hortonworks.com </email>
+		</developer>
+	</developers>
+
+	<pluginRepositories>
+	</pluginRepositories>
+
+	<repositories>
+		<repository>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+				<checksumPolicy>warn</checksumPolicy>
+			</releases>
+			<snapshots>
+				<enabled>false</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+			<id>HDPReleases</id>
+			<name>HDP Releases</name>
+			<url>http://repo.hortonworks.com/content/repositories/releases/</url>
+			<layout>default</layout>
+		</repository>
+
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20140107</version>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.17</version>
+		</dependency>
+		<dependency>
+			<groupId>storm-hbase</groupId>
+			<artifactId>storm-hbase</artifactId>
+			<version>0.9.3</version>
+			<scope>system</scope>
+			<systemPath>/usr/hdp/2.2.0.0-1084/storm/contrib/storm-hbase/storm-hbase-0.9.3.2.2.0.0-1084.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>storm-kafka</groupId>
+			<artifactId>storm-kafka</artifactId>
+			<version>0.9.3</version>
+			<scope>system</scope>
+			<systemPath>/usr/hdp/2.2.0.0-1084/storm/contrib/storm-kafka/storm-kafka-0.9.3.2.2.0.0-1084.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.storm</groupId>
+			<artifactId>storm-core</artifactId>
+			<version>0.9.3</version>
+			<scope>system</scope>
+			<systemPath>/usr/hdp/2.2.0.0-1084/storm/lib/storm-core-0.9.3.2.2.0.0-1084.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka_2.10</artifactId>
+			<version>0.8.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.curator</groupId>
+			<artifactId>curator-framework</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hbase</groupId>
+			<artifactId>hbase-client</artifactId>
+			<version>0.98.4</version>
+			<scope>system</scope>
+			<systemPath>/usr/hdp/2.2.0.0-1084/hbase/lib/hbase-client.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hbase</groupId>
+			<artifactId>hbase-common</artifactId>
+			<version>0.98.4</version>
+			<scope>system</scope>
+			<systemPath>/usr/hdp/2.2.0.0-1084/hbase/lib/hbase-common.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.hbase</groupId>
+			<artifactId>hbase-protocol</artifactId>
+			<version>0.98.4</version>
+			<scope>system</scope>
+			<systemPath>/usr/hdp/2.2.0.0-1084/hbase/lib/hbase-protocol.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>2.5.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.htrace</groupId>
+			<artifactId>htrace</artifactId>
+			<version>3.0.4</version>
+			<scope>system</scope>
+			<systemPath>/usr/hdp/2.2.0.0-1084/hbase/lib/htrace-core-3.0.4.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>org.htrace</groupId>
+			<artifactId>htrace</artifactId>
+			<version>2.04</version>
+			<scope>system</scope>
+			<systemPath>/usr/hdp/2.2.0.0-1084/hbase/lib/htrace-core-2.04.jar</systemPath>
+		</dependency>
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty</artifactId>
+			<version>3.6.6.Final</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>2.2.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>1.9.13</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.4</version>
+					<configuration>
+						<descriptor>src/main/assembly/finalJar.xml</descriptor>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+</project>

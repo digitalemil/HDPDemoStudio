@@ -9,12 +9,12 @@
 	<div id="alldiv">
 		<div>
 			<img id="bg" style="position: absolute; top: 0px; left: 0px;"
-				src="bg.jpg"> </img>
+				src="hdp.jpg"> </img>
 		</div>
 		<div>
 			<table id="table" border="0">
 				<caption>
-					<b><MYTITLE></b>
+					<b>HDP Demo</b>
 				</caption>
 				<col width="30%">
   			<col width="70%">
@@ -26,8 +26,7 @@
 					<td >location</td>
 					<td><input type="text" name="location" id="location" size="40"/></td>
 				</tr>
-				<MYMARKER1/>
-				<tr>
+<tr><td>foo</td><td><input type="text" name="foo" id="foo" size="40"/></td></tr><tr><td>bar</td><td><input type="text" name="bar" id="bar" size="40"/></td></tr>				<tr>
 					<td></td>
 					<td align="right"><input type="button" value="Send Data"
 						id="submit" onclick="doSubmit()" /></td>
@@ -44,7 +43,7 @@
 		var sY = h / 768;
 		var bgh = (768 * window.innerWidth / 1024);
 		var json;
-		var showLocation= "MYMARKER7";
+		var showLocation= "true";
 		
 		function jsonSent() {
 			console.log("JSON sent: "+json);
@@ -52,8 +51,7 @@
 		function doSubmit() {
 			json= '{ "id":"'+document.getElementById("id").value+'"'
 			+', "location":"'+document.getElementById("location").value+'"'
-			/*MYMARKER2*/ 
-			+'}';
++', "foo":"'+document.getElementById("foo").value+'", "bar":"'+document.getElementById("bar").value+'"'			+'}';
 			postJSON(json);
 		}
 		
