@@ -214,7 +214,7 @@ public class Setup {
 				+ "/solr/" + solrcore + "/conf").waitFor();
 		
 		Runtime.getRuntime()
-		.exec("echo name="+solrcore+" >/opt/solr/solr/"+solrcore+"/solr/"+solrcore+"/core.properties");
+		.exec("sed -i 's/collection1/"+solrcore+"/' /opt/solr/solr/"+solrcore+"/solr/"+solrcore+"/core.properties").waitFor();
 	}
 
 }
