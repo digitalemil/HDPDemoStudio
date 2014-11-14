@@ -60,7 +60,7 @@ public class Setup {
 		String showLocation = props.getProperty("showLocation");
 		String hbasetable = props.getProperty("hbasetable");
 		String topic= props.getProperty("topic");
-		String fields= "id location";
+		String fields= "\"id location ";
 		if(topic== null) {
 			topic= "default";
 		}
@@ -81,6 +81,7 @@ public class Setup {
 			fields= fields+ name+" ";
 			i++;
 		} while (true);
+		fields= fields+"\"";
 
 		try {
 			br = new BufferedReader(new InputStreamReader(props.getClass()

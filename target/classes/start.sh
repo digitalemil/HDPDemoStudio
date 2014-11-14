@@ -13,6 +13,9 @@ echo Starting...
 echo Restarting Ambari-Server
 ambari-server restart
 
+echo Restarting Ambari-Agent
+ambari-agent restart
+
 echo Creating HBase Table 
 sudo -u hbase echo create \'$HBASETABLE\',\'all\' | hbase shell
 
@@ -32,6 +35,7 @@ cd $cwd
 echo Deploying Storm topology
 storm jar $HDPAPPSTUDIO_HOME/StormTopology/target/HDPAppStudioStormTopology-0.1.1-distribution.jar com.hortonworks.digitalemil.hdpappstudio.storm.Topology $APPNAME 127.0.0.1:2181 http://127.0.0.1:8983/solr/$SOLRCORE/update/json?commit=true $HBASETABLE all $TOPIC $FIELDS
 
-echo execute tail -/var/log/ambari-server/ambari-server.log
-echo and wait until you see your Ambari View being deployed (might take a couple of minutes). Then go to Ambari Web: http://127.0.0.1:8080/#/main/views 
+echo Execute 
+echo tail -/var/log/ambari-server/ambari-server.log
+echo and wait until you see your Ambari View being deployed \(might take a couple of minutes\). Then go to Ambari Web: http://127.0.0.1:8080/#/main/views 
 
