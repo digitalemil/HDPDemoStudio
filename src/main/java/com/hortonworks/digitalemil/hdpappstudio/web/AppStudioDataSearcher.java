@@ -136,7 +136,10 @@ public class AppStudioDataSearcher extends HttpServlet {
 	}
 	
 	public String queryLocationsViaHBase() throws IOException {
-		HTable table = new HTable(HBaseConfiguration.create(), hbasetable);
+		HBaseConfiguration config = (HBaseConfiguration) HBaseConfiguration.create();
+		config.set("zookeeper.znode.parent", "/hbase-unsecure");
+		config.set("hbase.rootdir", "hdfs://sandbox:8020/apps/hbase/data/");
+		HTable table = new HTable(config, hbasetable);
 		Scan scan = new Scan();
 		scan.setCaching(1024);
 		scan.setBatch(1024);
