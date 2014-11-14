@@ -9,7 +9,7 @@
 	<div id="alldiv">
 		<div>
 			<img id="bg" style="position: absolute; top: 0px; left: 0px;"
-				src="hdp.jpg"> </img>
+				src="bg.jpg"> </img>
 		</div>
 		<div>
 			<table id="table" border="0">
@@ -89,7 +89,7 @@
 		function onGeoSuccess(position) {
 			latitude = position.coords.latitude;
 			longitude = position.coords.longitude;
-			loc.value = latitude + ":" + longitude;
+			loc.value = latitude + "," + longitude;
 		}
 
 		function onGeoError(error) {

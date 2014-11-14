@@ -34,7 +34,7 @@ public class Setup {
 		Properties props = new Properties();
 		String appname = args[0];
 		String path = APPSFOLDER + "/" + appname + "/";
-
+		
 		Runtime.getRuntime().exec("mkdir " + path).waitFor();
 		Runtime.getRuntime().exec("cp samples/hdp.jpg " + path).waitFor();
 
@@ -45,6 +45,12 @@ public class Setup {
 			e.printStackTrace();
 			return;
 		}
+		
+		String solrcore = props.getProperty("solrcore");
+		if(solrcore== null) {
+			solrcore= "hdpcore";
+		}
+		
 
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(props
@@ -94,12 +100,39 @@ public class Setup {
 
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(props
+					.getClass().getResourceAsStream("/web.xml")));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path
+					+ "web.xml"));
+			String line;
+
+			String hbasetable= props.getProperty("hbasetable");
+			if(hbasetable== null)
+				hbasetable="mytab";
+			
+			while ((line = br.readLine()) != null) {
+				if (line.contains("HBASETABLE")) {
+					line= "<param-value>"+hbasetable+"</param-value>";
+				}
+				if (line.contains("SOLRURL")) {
+					line= "<param-value>"+"http://127.0.0.1:8983/solr/+"+solrcore+"</param-value>";
+				}
+				bw.write(line);
+			}
+			br.close();
+			bw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(props
 					.getClass().getResourceAsStream("/index.html")));
 			BufferedWriter bw = new BufferedWriter(new FileWriter(path
 					+ "index.html"));
 			String line;
 
 			while ((line = br.readLine()) != null) {
+				
 				if (line.contains(MARKER5)) {
 					String imgpath = props.getProperty("bgimg");
 					String imgname = imgpath;
@@ -108,9 +141,9 @@ public class Setup {
 								.substring(imgpath.lastIndexOf("/") + 1);
 					}
 					Runtime.getRuntime()
-							.exec("cp " + imgpath + " " + path + imgname)
+							.exec("cp " + imgpath + " " + path + "bg.jpg")
 							.waitFor();
-					line = line.replaceFirst(MARKER5, imgname);
+					//line = line.replaceFirst(MARKER5, imgname);
 				}
 				if (line.contains(MARKER6)) {
 					String title = props.getProperty("title");
@@ -158,7 +191,6 @@ public class Setup {
 			e.printStackTrace();
 		}
 
-		String solrcore = props.getProperty("solrcore");
 		
 		try {
 			Runtime.getRuntime()

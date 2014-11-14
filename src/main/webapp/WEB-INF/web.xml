@@ -30,4 +30,30 @@
 		<servlet-name>AppStudioDataListener</servlet-name>
 		<url-pattern>/data/publish</url-pattern>
 	</servlet-mapping>
+	<servlet>
+		<description></description>
+		<display-name>AppStudioDataSearcher</display-name>
+		<servlet-name>AppStudioDataSearcher</servlet-name>
+		<servlet-class>com.hortonworks.digitalemil.hdpappstudio.web.AppStudioDataSearcher</servlet-class>
+		<init-param>
+			<param-name>hbasetable</param-name>
+			<param-value>mytab</param-value>
+		</init-param>
+		<init-param>
+			<param-name>hbasecolumnfamily</param-name>
+			<param-value>all</param-value>
+		</init-param>
+		<init-param>
+			<param-name>solrurl</param-name>
+			<param-value>"http://127.0.0.1:8983/solr/hdp"</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>AppStudioDataSearcher</servlet-name>
+		<url-pattern>/data/search</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AppStudioDataSearcher</servlet-name>
+		<url-pattern>/data/hbase</url-pattern>
+	</servlet-mapping>
 </web-app>
