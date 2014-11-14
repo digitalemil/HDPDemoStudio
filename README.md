@@ -20,7 +20,7 @@ Build HDPAppStudio:
 mvn clean compile assembly:single
 
 Build Storm Topology
-cd StormToplogy
+cd StormTopology
 mvn clean compile assembly:single
 cd ..
 

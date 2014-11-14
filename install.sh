@@ -9,6 +9,6 @@ sh ./install-kafka.sh
 
 mvn clean compile assembly:single
 
-cd StormToplogy
+cd StormTopology
 mvn clean compile assembly:single
 cd ..
