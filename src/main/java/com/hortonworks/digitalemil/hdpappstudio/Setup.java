@@ -35,9 +35,9 @@ public class Setup {
 		String appname = args[0];
 		String path = APPSFOLDER + "/" + appname + "/";
 		
-		Runtime.getRuntime().exec("mkdir " + path).waitFor();
-		Runtime.getRuntime().exec("cp samples/hdp.jpg " + path).waitFor();
-
+		Runtime.getRuntime().exec("mkdir -p" + path+"/jar/WEB-INF").waitFor();
+		Runtime.getRuntime().exec("cd "+path+"; jar xvf ../../target/*jar").waitFor();
+		
 		try {
 			InputStream is = new FileInputStream(args[1]);
 			props.load(is);
@@ -50,8 +50,29 @@ public class Setup {
 		if(solrcore== null) {
 			solrcore= "hdpcore";
 		}
-		
 
+		try {
+			BufferedReader br = new BufferedReader(new InputStreamReader(props
+					.getClass().getResourceAsStream("/view.xml")));
+			BufferedWriter bw = new BufferedWriter(new FileWriter(path+"/jar/view.xml"));
+			String line;
+
+			while ((line = br.readLine()) != null) {
+				if(line.contains("<name>HDPAppStudio</name>")) {
+					line= "<name>"+appname+"</name>";
+				}
+				if(line.contains("<label>HDPAppStudio</label>")) {
+					line= "<label>"+appname+"</label>";
+				}
+				bw.write(line + "\n");
+			}
+			br.close();
+			bw.close();	
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+		
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(props
 					.getClass().getResourceAsStream("/schema.xml")));
@@ -102,7 +123,7 @@ public class Setup {
 			BufferedReader br = new BufferedReader(new InputStreamReader(props
 					.getClass().getResourceAsStream("/web.xml")));
 			BufferedWriter bw = new BufferedWriter(new FileWriter(path
-					+ "web.xml"));
+					+ "/jar/WEB-INF/web.xml"));
 			String line;
 
 			String hbasetable= props.getProperty("hbasetable");
@@ -114,9 +135,9 @@ public class Setup {
 					line= "<param-value>"+hbasetable+"</param-value>";
 				}
 				if (line.contains("SOLRURL")) {
-					line= "<param-value>"+"http://127.0.0.1:8983/solr/+"+solrcore+"</param-value>";
+					line= "<param-value>"+"http://127.0.0.1:8983/solr/"+solrcore+"</param-value>";
 				}
-				bw.write(line);
+				bw.write(line+"\n");
 			}
 			br.close();
 			bw.close();
