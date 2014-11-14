@@ -93,7 +93,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 					if(request.getParameter("refresh")!= null && "false".equals(request.getParameter("refresh"))) {
 						auto= "false;";
 					}
-					line= "var AUTOREFRESH = "+auto;
+					line= "var AUTOREFRESH = "+auto+";";
 				}
 				if(line.contains("var FORSOLR")) {
 					line= "var FORSOLR = "+!hbase+";";
@@ -101,7 +101,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 				if(line.contains("var SHOWQUERY")) {
 					line= "var SHOWQUERY = "+!hbase+";";
 				}
-				writer.write(line);
+				writer.write(line+"\n");
 			}
 			br.close();
 		} catch (Exception e) {
