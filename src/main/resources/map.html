@@ -1,33 +1,10 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html 
-     PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
 <html>
 <head>
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="viewport"
-	content="user-scalable=no, width=device-width,  initial-scale=0.5, minimum-scale=0.5,  maximum-scale=2" />
-<style>
-* {
-	-webkit-user-drag: none;
-	-webkit-touch-callout: none;
-	/* prevent callout to copy image, etc when tap to hold */
-	-webkit-text-size-adjust: none;
-	/* prevent webkit from resizing text to fit */
-	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-	/* make transparent link [ remove highlighting ] selection, adjust last value opacity 0 to 1.0 */
-}
-</style>
-<style>
-canvas {
-	border: 0px solid black;
-}
-</style>
 	<title>HDPAppStudio</title>
 <script
 	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1HarMVY68xeAypKfrIH2Lka7YdJglZm4&v=3.exp&sensor=false"></script>
 <script>
+
 	// Do not modify the following lines!
 	var LOCATIONS = new Array();
 	var AUTOREFRESH = false;
@@ -141,7 +118,7 @@ canvas {
 		sY = h / 768;
 
 		var bgimg = new Image();
-		bgimg.src = "bg.jpg";
+		bgimg.src = "../bg.jpg";
 		bgimg.setAttribute("id", "bg");
 		id.appendChild(bgimg);
 
@@ -156,7 +133,7 @@ canvas {
 				+ (512 * (1 - 0.7) * sX) + "px; width: " + (1024 * sX * 0.7)
 				+ "px; height: " + (768 * sY * 0.6) + "px;");
 
-		id = document.getElementById("query");
+		id = document.getElementById("q");
 		id
 				.setAttribute(
 						"style",
@@ -169,7 +146,7 @@ canvas {
 								+ "px; height: " + (768 * sY * 0.6) + "px;");
 
 		if (SHOWQUERY == false) {
-			document.getElementById("query").setAttribute("style",
+			document.getElementById("q").setAttribute("style",
 					"display:none;");
 		}
 
@@ -204,12 +181,14 @@ canvas {
 
 	function execQuery(q) {
 		if(FORSOLR) {
-			window.open("data/search?q=" + $("#query").val()
-					+ "&refresh=" + $("#refresh").is(':checked'));
+			var q= document.getElementById("query").value;
+			var r= document.getElementById("refresh").value;
+			alert(q+" \n "+r);
+			window.open("search?q=" + q+
+					+ "&refresh=" + r);
 		}
 		else {
-			window.open("data/hbase?q=" + $("#query").val()
-					+ "&refresh=" + $("#refresh").is(':checked'));
+			window.open("hbase?refresh=" + r);
 		}
 	}
 </script>
@@ -217,7 +196,7 @@ canvas {
 <body onload="initialize()">
 	<div id="all" style="position: absolute; top: 0px; left: 0px;"></div>
 	<div id="map_canvas"></div>
-	<div id="query">
+	<div id="q">
 			Please enter your Solr query: <input style="width: 80%" type="text"
 				id="query"
 				value="{!geofilt}&sfield=location&pt=43.607333333,-110.73775&d=800&sort=geodist()+asc&rows=256"/><br />

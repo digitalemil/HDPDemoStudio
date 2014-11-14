@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletConfig;
@@ -70,8 +71,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 			hbase= true;
 		}
 		else {
-			query= request.getParameter("query");
-			locations= searchLocationsViaSolr(query);
+			locations= searchLocationsViaSolr(request);
 		}
 		
 		Writer writer= response.getWriter();
@@ -121,8 +121,8 @@ public class AppStudioDataSearcher extends HttpServlet {
 
 	public String getLocationsAsString(HashMap<Location, Integer> locations) {
 		int total= locations.size();
-		StringBuffer ret = new StringBuffer("{ ;total;:" + total
-				+ ", ;locations;: [");
+		StringBuffer ret = new StringBuffer("{ \"total\":\"" + total
+				+ "\", \"locations\": [");
 		Set<Location> keys = locations.keySet();
 		int n = 0;
 		for (Location l : keys) {
@@ -168,13 +168,26 @@ public class AppStudioDataSearcher extends HttpServlet {
 		return getLocationsAsString(locations);
 	}
 
-	public String searchLocationsViaSolr(String solrquery) {
+	public String searchLocationsViaSolr(HttpServletRequest request) {
 		HashMap<Location, Integer> locations = new HashMap<Location, Integer>();
 
 		SolrServer server = new HttpSolrServer(solrurl);
-		System.out.println("Search Query: " + solrquery);
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setRows(1024);
+		
+		Map<java.lang.String, java.lang.String[]> params = request
+				.getParameterMap();
+		for (Object param : params.keySet()) {
+			StringBuffer buf = new StringBuffer();
+			if (param.equals("refresh")) {
+				continue;
+			}
+			for (int i = 0; i < params.get(param).length; i++) {
+				buf.append(params.get(param)[i]);
+			}
+			solrQuery.set(param.toString(), buf.toString());
+		}
+		System.out.println("solr query: "+solrQuery);
 		QueryResponse rsp = null;
 		try {
 			rsp = server.query(solrQuery);
@@ -183,6 +196,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 		}
 		Iterator<SolrDocument> iter = rsp.getResults().iterator();
 
+		
 		while (iter.hasNext()) {
 			Location loc = new Location();
 			SolrDocument resultDoc = iter.next();
