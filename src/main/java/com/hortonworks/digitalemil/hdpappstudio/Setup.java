@@ -58,10 +58,29 @@ public class Setup {
 
 		String solrcore = props.getProperty("solrcore");
 		String showLocation = props.getProperty("showLocation");
-		
+		String hbasetable = props.getProperty("hbasetable");
+		String topic= props.getProperty("topic");
+		String fields= "";
+		if(topic== null) {
+			topic= "default";
+		}
 		if (solrcore == null) {
 			solrcore = "hdpcore";
 		}
+		if (hbasetable == null) {
+			hbasetable = "mytab";
+		}
+		if (showLocation == null) {
+			showLocation = "true";
+		}
+		int i = 4;
+		do {
+			String name = props.getProperty("name_" + i);
+			if (name == null)
+				break;
+			fields= fields+ name+" ";
+			i++;
+		} while (true);
 
 		try {
 			br = new BufferedReader(new InputStreamReader(props.getClass()
@@ -90,7 +109,7 @@ public class Setup {
 
 			while ((line = br.readLine()) != null) {
 				if (line.contains(MARKER1)) {
-					int i = 0;
+					i = 0;
 					do {
 						String name = props.getProperty("name_" + i);
 						String type = props.getProperty("type_" + i);
@@ -107,7 +126,7 @@ public class Setup {
 					} while (true);
 				} else {
 					if (line.contains(MARKER2)) {
-						int i = 4;
+						i = 4;
 						do {
 							String name = props.getProperty("name_" + i);
 							if (name == null)
@@ -132,10 +151,6 @@ public class Setup {
 					.getResourceAsStream("/web.xml")));
 			bw = new BufferedWriter(
 					new FileWriter(path + "jar/WEB-INF/web.xml"));
-
-			String hbasetable = props.getProperty("hbasetable");
-			if (hbasetable == null)
-				hbasetable = "mytab";
 
 			while ((line = br.readLine()) != null) {
 				if (line.contains("HBASETABLE")) {
@@ -202,7 +217,7 @@ public class Setup {
 					line = line.replaceFirst(MARKER7, showLocation);
 				}
 				if (line.contains(MARKER3)) {
-					int i = 5;
+					i = 5;
 					do {
 						String name = props.getProperty("name_" + i);
 						if (name == null)
@@ -215,7 +230,7 @@ public class Setup {
 					} while (true);
 				} else {
 					if (line.contains(MARKER4)) {
-						int i = 5;
+						i = 5;
 						bw.write("+'");
 						do {
 							String name = props.getProperty("name_" + i);
@@ -317,6 +332,40 @@ public class Setup {
 						+ "/"
 						+ path
 						+ "jar/ .").waitFor();
+		
+		try {
+			br = new BufferedReader(new InputStreamReader(props.getClass()
+					.getResourceAsStream("/start.sh")));
+			bw = new BufferedWriter(
+					new FileWriter(path + "jar/start.sh"));
+
+			while ((line = br.readLine()) != null) {
+				if (line.contains("export APPNAME")) {
+					line = "export APPNAME="+appname;
+				}
+				if (line.contains("export HBASETABLE")) {
+					line = "export HBASETABLE="+hbasetable;
+				}
+				if (line.contains("export SOLRCORE")) {
+					line = "export SOLRCORE="+solrcore ;
+				}
+				if (line.contains("export TOPIC")) {
+					line = "export TOPIC=" +topic;
+				}
+				if (line.contains("export FIELDS")) {
+					line = fields;
+				}
+				bw.write(line + "\n");
+			}
+			br.close();
+			bw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		
+		System.out.println("Please find your app in "+path);
+		System.out.println("Start it via ./"+path+"start.sh");
 	}
 
 }
