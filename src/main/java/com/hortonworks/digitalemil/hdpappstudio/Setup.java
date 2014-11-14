@@ -2,6 +2,7 @@ package com.hortonworks.digitalemil.hdpappstudio;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -34,10 +35,19 @@ public class Setup {
 		Properties props = new Properties();
 		String appname = args[0];
 		String path = APPSFOLDER + "/" + appname + "/";
-		
-		Runtime.getRuntime().exec("mkdir -p" + path+"/jar/WEB-INF").waitFor();
-		Runtime.getRuntime().exec("cd "+path+"; jar xvf ../../target/*jar").waitFor();
-		
+		String currentDir = System.getProperty("user.dir");
+
+		Runtime.getRuntime().exec("mkdir -p " + path + "jar/WEB-INF").waitFor();
+		Runtime.getRuntime()
+				.exec("/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar xvf ../../../target/HDPAppStudio-0.1.1-distribution.jar",
+						new String[0],
+						new File(currentDir + "/" + path + "jar")).waitFor();
+
+		BufferedReader br;
+		BufferedWriter bw;
+
+		String line;
+
 		try {
 			InputStream is = new FileInputStream(args[1]);
 			props.load(is);
@@ -45,40 +55,38 @@ public class Setup {
 			e.printStackTrace();
 			return;
 		}
-		
+
 		String solrcore = props.getProperty("solrcore");
-		if(solrcore== null) {
-			solrcore= "hdpcore";
+		String showLocation = props.getProperty("showLocation");
+		
+		if (solrcore == null) {
+			solrcore = "hdpcore";
 		}
 
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(props
-					.getClass().getResourceAsStream("/view.xml")));
-			BufferedWriter bw = new BufferedWriter(new FileWriter(path+"/jar/view.xml"));
-			String line;
+			br = new BufferedReader(new InputStreamReader(props.getClass()
+					.getResourceAsStream("/view.xml")));
+			bw = new BufferedWriter(new FileWriter(path + "jar/view.xml"));
 
 			while ((line = br.readLine()) != null) {
-				if(line.contains("<name>HDPAppStudio</name>")) {
-					line= "<name>"+appname+"</name>";
+				if (line.contains("<name>HDPAppStudio</name>")) {
+					line = "<name>" + appname + "</name>";
 				}
-				if(line.contains("<label>HDPAppStudio</label>")) {
-					line= "<label>"+appname+"</label>";
+				if (line.contains("<label>HDPAppStudio</label>")) {
+					line = "<label>" + appname + "</label>";
 				}
 				bw.write(line + "\n");
 			}
 			br.close();
-			bw.close();	
-		}
-		catch(Exception e) {
+			bw.close();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(props
-					.getClass().getResourceAsStream("/schema.xml")));
-			BufferedWriter bw = new BufferedWriter(new FileWriter(path
-					+ "schema.xml"));
-			String line;
+			br = new BufferedReader(new InputStreamReader(props.getClass()
+					.getResourceAsStream("/schema.xml")));
+			bw = new BufferedWriter(new FileWriter(path + "schema.xml"));
 
 			while ((line = br.readLine()) != null) {
 				if (line.contains(MARKER1)) {
@@ -120,40 +128,60 @@ public class Setup {
 		}
 
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(props
-					.getClass().getResourceAsStream("/web.xml")));
-			BufferedWriter bw = new BufferedWriter(new FileWriter(path
-					+ "/jar/WEB-INF/web.xml"));
-			String line;
+			br = new BufferedReader(new InputStreamReader(props.getClass()
+					.getResourceAsStream("/web.xml")));
+			bw = new BufferedWriter(
+					new FileWriter(path + "jar/WEB-INF/web.xml"));
 
-			String hbasetable= props.getProperty("hbasetable");
-			if(hbasetable== null)
-				hbasetable="mytab";
-			
+			String hbasetable = props.getProperty("hbasetable");
+			if (hbasetable == null)
+				hbasetable = "mytab";
+
 			while ((line = br.readLine()) != null) {
 				if (line.contains("HBASETABLE")) {
-					line= "<param-value>"+hbasetable+"</param-value>";
+					line = "<param-value>" + hbasetable + "</param-value>";
 				}
 				if (line.contains("SOLRURL")) {
-					line= "<param-value>"+"http://127.0.0.1:8983/solr/"+solrcore+"</param-value>";
+					line = "<param-value>" + "http://127.0.0.1:8983/solr/"
+							+ solrcore + "</param-value>";
 				}
-				bw.write(line+"\n");
+				bw.write(line + "\n");
 			}
 			br.close();
 			bw.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(props
-					.getClass().getResourceAsStream("/index.html")));
-			BufferedWriter bw = new BufferedWriter(new FileWriter(path
-					+ "index.html"));
-			String line;
+			br = new BufferedReader(new InputStreamReader(props.getClass()
+					.getResourceAsStream("/index.html")));
+			bw = new BufferedWriter(new FileWriter(path + "jar/index.html"));
 
 			while ((line = br.readLine()) != null) {
-				
+				if (line.contains("MYMARKER")) {
+					if(showLocation.equals("false")) {
+						line= "var showLocation= false;";
+					}
+					else {
+						line= "var showLocation= true;";
+					}
+				}
+				bw.write(line + "\n");
+			}
+			br.close();
+			bw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			br = new BufferedReader(new InputStreamReader(props.getClass()
+					.getResourceAsStream("/data.html")));
+			bw = new BufferedWriter(new FileWriter(path + "jar/data.html"));
+
+			while ((line = br.readLine()) != null) {
+
 				if (line.contains(MARKER5)) {
 					String imgpath = props.getProperty("bgimg");
 					String imgname = imgpath;
@@ -162,16 +190,15 @@ public class Setup {
 								.substring(imgpath.lastIndexOf("/") + 1);
 					}
 					Runtime.getRuntime()
-							.exec("cp " + imgpath + " " + path + "bg.jpg")
+							.exec("cp " + imgpath + " " + path + "jar/bg.jpg")
 							.waitFor();
-					//line = line.replaceFirst(MARKER5, imgname);
+					// line = line.replaceFirst(MARKER5, imgname);
 				}
 				if (line.contains(MARKER6)) {
 					String title = props.getProperty("title");
 					line = line.replaceFirst(MARKER6, title);
 				}
 				if (line.contains(MARKER7)) {
-					String showLocation = props.getProperty("showLocation");
 					line = line.replaceFirst(MARKER7, showLocation);
 				}
 				if (line.contains(MARKER3)) {
@@ -212,52 +239,51 @@ public class Setup {
 			e.printStackTrace();
 		}
 
-		
 		try {
+			Runtime.getRuntime().exec("rm -fr /opt/solr/solr/" + solrcore)
+					.waitFor();
 			Runtime.getRuntime()
-			.exec("rm -fr /opt/solr/solr/" + solrcore).waitFor();
-			Runtime.getRuntime()
-					.exec("cp -r /opt/solr/solr/example /opt/solr/solr/" + solrcore).waitFor();
+					.exec("cp -r /opt/solr/solr/example /opt/solr/solr/"
+							+ solrcore).waitFor();
 			Runtime.getRuntime()
 					.exec("mv /opt/solr/solr/" + solrcore
 							+ "/solr/collection1 /opt/solr/solr/" + solrcore
 							+ "/solr/" + solrcore).waitFor();
 			Runtime.getRuntime()
-					.exec("cp "+path + "schema.xml /opt/solr/solr/" + solrcore
-							+ "/solr/" + solrcore + "/conf").waitFor();
+					.exec("cp " + path + "schema.xml /opt/solr/solr/"
+							+ solrcore + "/solr/" + solrcore + "/conf")
+					.waitFor();
 
-			BufferedReader br = new BufferedReader(new InputStreamReader(
-					new FileInputStream("/opt/solr/solr/" + solrcore + "/solr/"
-							+ solrcore + "/conf/solrconfig.xml")));
-			BufferedWriter bw = new BufferedWriter(new FileWriter(path
-					+ "solrconfig.xml"));
-			String line;
+			br = new BufferedReader(new InputStreamReader(new FileInputStream(
+					"/opt/solr/solr/" + solrcore + "/solr/" + solrcore
+							+ "/conf/solrconfig.xml")));
+			bw = new BufferedWriter(new FileWriter(path + "solrconfig.xml"));
 			boolean inDirFac = false;
 			while ((line = br.readLine()) != null) {
-				if (line.contains("<lockType>")){
+				if (line.contains("<lockType>")) {
 					line = "<lockType>hdfs</lockType>";
 				}
-				if(line.contains("<directoryFactory")) {
-					inDirFac= true;
+				if (line.contains("<directoryFactory")) {
+					inDirFac = true;
 				}
-				if(line.contains("</directoryFactory>")) {
-					inDirFac= false;
+				if (line.contains("</directoryFactory>")) {
+					inDirFac = false;
 					bw.write("<directoryFactory name=\"DirectoryFactory\" class=\"solr.HdfsDirectoryFactory\">\n"
-					  +"<str name=\"solr.hdfs.home\">hdfs://sandbox:8020/user/solr</str>\n"
-					  +"<bool name=\"solr.hdfs.blockcache.enabled\">true</bool>\n"
-					  +"<int name=\"solr.hdfs.blockcache.slab.count\">1</int>\n"
-					  +"<bool name=\"solr.hdfs.blockcache.direct.memory.allocation\">true</bool>\n"
-					  +"<int name=\"solr.hdfs.blockcache.blocksperbank\">16384</int>\n"
-					  +"<bool name=\"solr.hdfs.blockcache.read.enabled\">true</bool>\n"
-					  +"<bool name=\"solr.hdfs.blockcache.write.enabled\">true</bool>\n"
-					  +"<bool name=\"solr.hdfs.nrtcachingdirectory.enable\">true</bool>\n"
-					  +"<int name=\"solr.hdfs.nrtcachingdirectory.maxmergesizemb\">16</int>\n"
-					  +"<int name=\"solr.hdfs.nrtcachingdirectory.maxcachedmb\">192</int>\n");
+							+ "<str name=\"solr.hdfs.home\">hdfs://sandbox:8020/user/solr</str>\n"
+							+ "<bool name=\"solr.hdfs.blockcache.enabled\">true</bool>\n"
+							+ "<int name=\"solr.hdfs.blockcache.slab.count\">1</int>\n"
+							+ "<bool name=\"solr.hdfs.blockcache.direct.memory.allocation\">true</bool>\n"
+							+ "<int name=\"solr.hdfs.blockcache.blocksperbank\">16384</int>\n"
+							+ "<bool name=\"solr.hdfs.blockcache.read.enabled\">true</bool>\n"
+							+ "<bool name=\"solr.hdfs.blockcache.write.enabled\">true</bool>\n"
+							+ "<bool name=\"solr.hdfs.nrtcachingdirectory.enable\">true</bool>\n"
+							+ "<int name=\"solr.hdfs.nrtcachingdirectory.maxmergesizemb\">16</int>\n"
+							+ "<int name=\"solr.hdfs.nrtcachingdirectory.maxcachedmb\">192</int>\n");
 				}
-				if(inDirFac) {
-					line="";
+				if (inDirFac) {
+					line = "";
 				}
-				bw.write(line+"\n");
+				bw.write(line + "\n");
 			}
 			br.close();
 			bw.close();
@@ -265,20 +291,37 @@ public class Setup {
 			e.printStackTrace();
 		}
 		Runtime.getRuntime()
-		.exec("cp "+path + "solrconfig.xml /opt/solr/solr/" + solrcore
-				+ "/solr/" + solrcore + "/conf").waitFor();
-		
+				.exec("cp " + path + "solrconfig.xml /opt/solr/solr/"
+						+ solrcore + "/solr/" + solrcore + "/conf").waitFor();
+
 		try {
-			BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/opt/solr/solr/" + solrcore + "/solr/"+ solrcore + "/core.properties")));
-			bw.write("name="+solrcore+"\n");
+			bw = new BufferedWriter(new OutputStreamWriter(
+					new FileOutputStream("/opt/solr/solr/" + solrcore
+							+ "/solr/" + solrcore + "/core.properties")));
+			bw.write("name=" + solrcore + "\n");
 			bw.close();
-		}
-		catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		System.out
+				.println("Creating Ambari-View jar: "
+						+ "/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar cf /var/lib/ambari-server/resources/views/"
+						+ appname + ".jar -C " + currentDir + "/" + path
+						+ "jar/ .");
+		Runtime.getRuntime()
+				.exec("/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar cf /var/lib/ambari-server/resources/views/"
+						+ appname
+						+ ".jar -C "
+						+ currentDir
+						+ "/"
+						+ path
+						+ "jar/ .").waitFor();
 	}
 
 }
 
-
-//storm jar HDPAppStudioStormTopology-0.1.1-distribution.jar com.hortonworks.digitalemil.hdpappstudio.storm.Topology HDPAppStudio 127.0.0.1:2181 http://127.0.0.1:8983/solr/hdp/update/json?commit=true mytab all default id location foo bar
+// storm jar HDPAppStudioStormTopology-0.1.1-distribution.jar
+// com.hortonworks.digitalemil.hdpappstudio.storm.Topology HDPAppStudio
+// 127.0.0.1:2181 http://127.0.0.1:8983/solr/hdp/update/json?commit=true mytab
+// all default id location foo bar

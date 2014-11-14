@@ -50,6 +50,14 @@
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>AppStudioDataSearcher</servlet-name>
+		<url-pattern>/data/searchLocations</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AppStudioDataSearcher</servlet-name>
+		<url-pattern>/data/hbaseLocations</url-pattern>
+	</servlet-mapping>
+		<servlet-mapping>
+		<servlet-name>AppStudioDataSearcher</servlet-name>
 		<url-pattern>/data/search</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
