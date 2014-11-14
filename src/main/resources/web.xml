@@ -25,6 +25,10 @@
 			<param-name>serializer</param-name>
 			<param-value>kafka.serializer.StringEncoder</param-value>
 		</init-param>
+		<init-param>
+			<param-name>topic</param-name>
+			<param-value>TOPIC</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>AppStudioDataListener</servlet-name>

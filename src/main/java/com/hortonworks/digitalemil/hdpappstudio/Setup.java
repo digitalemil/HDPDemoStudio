@@ -60,7 +60,7 @@ public class Setup {
 		String showLocation = props.getProperty("showLocation");
 		String hbasetable = props.getProperty("hbasetable");
 		String topic= props.getProperty("topic");
-		String fields= "";
+		String fields= "id location";
 		if(topic== null) {
 			topic= "default";
 		}
@@ -73,7 +73,7 @@ public class Setup {
 		if (showLocation == null) {
 			showLocation = "true";
 		}
-		int i = 4;
+		int i = 5;
 		do {
 			String name = props.getProperty("name_" + i);
 			if (name == null)
@@ -153,6 +153,9 @@ public class Setup {
 					new FileWriter(path + "jar/WEB-INF/web.xml"));
 
 			while ((line = br.readLine()) != null) {
+				if (line.contains("TOPIC")) {
+					line = "<param-value>"+topic+"</param-value>";
+				}
 				if (line.contains("HBASETABLE")) {
 					line = "<param-value>" + hbasetable + "</param-value>";
 				}
@@ -337,7 +340,7 @@ public class Setup {
 			br = new BufferedReader(new InputStreamReader(props.getClass()
 					.getResourceAsStream("/start.sh")));
 			bw = new BufferedWriter(
-					new FileWriter(path + "jar/start.sh"));
+					new FileWriter(path + "start.sh"));
 
 			while ((line = br.readLine()) != null) {
 				if (line.contains("export APPNAME")) {
@@ -353,7 +356,7 @@ public class Setup {
 					line = "export TOPIC=" +topic;
 				}
 				if (line.contains("export FIELDS")) {
-					line = fields;
+					line = "export FIELDS="+fields;
 				}
 				bw.write(line + "\n");
 			}
@@ -365,7 +368,7 @@ public class Setup {
 
 		
 		System.out.println("Please find your app in "+path);
-		System.out.println("Start it via ./"+path+"start.sh");
+		System.out.println("Start it: sh ./"+path+"start.sh");
 	}
 
 }

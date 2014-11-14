@@ -24,6 +24,7 @@ public class AppStudioDataListener extends HttpServlet {
     public final static String DEFAULTQUEUENAME= "default";  
     private static Producer<String, String> producer;
     private static 	ProducerConfig config;
+    protected String topic= DEFAULTQUEUENAME;
     
     @Override
     public void init(ServletConfig cfg) throws ServletException {
@@ -34,6 +35,7 @@ public class AppStudioDataListener extends HttpServlet {
 		String serializer = cfg.getInitParameter("serializer");
 		String partitioner = cfg.getInitParameter("partitioner");
 		String acks = cfg.getInitParameter("acks");
+		topic= cfg.getInitParameter("topic");
 		
 		props.put("metadata.broker.list", brokerList);
 		props.put("serializer.class", serializer);
@@ -79,19 +81,17 @@ public class AppStudioDataListener extends HttpServlet {
 			e.printStackTrace();
 		}
 		
-		String queue= DEFAULTQUEUENAME;
-		
 		if(jobj.has("topic")) {
 			try {
-				queue= jobj.getString("topic");
+				topic= jobj.getString("topic");
 			} catch (JSONException e) {
 				e.printStackTrace();
-				queue= DEFAULTQUEUENAME;
+				topic= DEFAULTQUEUENAME;
 			}
 		}
 		
 		System.out.println("Received JSON: "+jobj);
-		sendDataToKafka(queue, jobj.toString());
+		sendDataToKafka(topic, jobj.toString());
 	}
 
 	
