@@ -16,14 +16,14 @@ ambari-server restart
 echo Restarting Ambari-Agent
 ambari-agent restart
 
-echo Creating HBase Table 
+echo Creating HBase Table: $HBASETABLE
 sudo -u hbase echo create \'$HBASETABLE\',\'all\' | hbase shell
 
 echo Starting Kafka
 nohup /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties &
 sleep 10
 
-echo Creating Kafka Topic
+echo Creating Kafka Topic: $TOPIC
 /opt/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 2 --topic $TOPIC
 
 echo Starting Solr
