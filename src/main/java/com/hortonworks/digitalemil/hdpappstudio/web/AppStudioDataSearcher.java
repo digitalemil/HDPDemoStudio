@@ -121,8 +121,8 @@ public class AppStudioDataSearcher extends HttpServlet {
 
 	public String getLocationsAsString(HashMap<Location, Integer> locations) {
 		int total= locations.size();
-		StringBuffer ret = new StringBuffer("{ \"total\":\"" + total
-				+ "\", \"locations\": [");
+		StringBuffer ret = new StringBuffer("{ 'total':'" + total
+				+ "', 'locations': [");
 		Set<Location> keys = locations.keySet();
 		int n = 0;
 		for (Location l : keys) {

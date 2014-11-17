@@ -28,7 +28,7 @@ echo Creating Kafka Topic
 
 echo Starting Solr
 cwd=$(pwd)
-cd /opt/solr/solr/$SOLRCORE
+cd /opt/solr/solr/hdpsearch
 nohup java -jar start.jar >solr.out 2>solr.err </dev/null &
 cd $cwd
 
@@ -36,6 +36,6 @@ echo Deploying Storm topology
 storm jar $HDPAPPSTUDIO_HOME/StormTopology/target/HDPAppStudioStormTopology-0.1.1-distribution.jar com.hortonworks.digitalemil.hdpappstudio.storm.Topology $APPNAME 127.0.0.1:2181 http://127.0.0.1:8983/solr/$SOLRCORE/update/json?commit=true $HBASETABLE all $TOPIC $FIELDS
 
 echo Execute 
-echo tail -/var/log/ambari-server/ambari-server.log
+echo tail -f /var/log/ambari-server/ambari-server.log
 echo and wait until you see your Ambari View being deployed \(might take a couple of minutes\). Then go to Ambari Web: http://127.0.0.1:8080/#/main/views 
 
