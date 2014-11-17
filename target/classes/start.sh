@@ -28,7 +28,7 @@ echo Creating Kafka Topic
 
 echo Starting Solr
 cwd=$(pwd)
-cd /opt/solr/solr/hdpsearch
+cd /opt/solr/solr/hdp
 nohup java -jar start.jar >solr.out 2>solr.err </dev/null &
 cd $cwd
 
