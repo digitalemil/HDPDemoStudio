@@ -59,10 +59,10 @@ public class Setup {
 		String solrcore = props.getProperty("solrcore");
 		String showLocation = props.getProperty("showLocation");
 		String hbasetable = props.getProperty("hbasetable");
-		String topic= props.getProperty("topic");
-		String fields= "\"id location ";
-		if(topic== null) {
-			topic= "default";
+		String topic = props.getProperty("topic");
+		String fields = "\"id location ";
+		if (topic == null) {
+			topic = "default";
 		}
 		if (solrcore == null) {
 			solrcore = "hdpcore";
@@ -78,10 +78,10 @@ public class Setup {
 			String name = props.getProperty("name_" + i);
 			if (name == null)
 				break;
-			fields= fields+ name+" ";
+			fields = fields + name + " ";
 			i++;
 		} while (true);
-		fields= fields+"\"";
+		fields = fields + "\"";
 
 		try {
 			br = new BufferedReader(new InputStreamReader(props.getClass()
@@ -155,7 +155,7 @@ public class Setup {
 
 			while ((line = br.readLine()) != null) {
 				if (line.contains("TOPIC")) {
-					line = "<param-value>"+topic+"</param-value>";
+					line = "<param-value>" + topic + "</param-value>";
 				}
 				if (line.contains("HBASETABLE")) {
 					line = "<param-value>" + hbasetable + "</param-value>";
@@ -179,11 +179,10 @@ public class Setup {
 
 			while ((line = br.readLine()) != null) {
 				if (line.contains("MYMARKER")) {
-					if(showLocation.equals("false")) {
-						line= "var showLocation= false;";
-					}
-					else {
-						line= "var showLocation= true;";
+					if (showLocation.equals("false")) {
+						line = "var showLocation= false;";
+					} else {
+						line = "var showLocation= true;";
 					}
 				}
 				bw.write(line + "\n");
@@ -259,19 +258,13 @@ public class Setup {
 		}
 
 		try {
-		//	Runtime.getRuntime().exec("rm -fr /opt/solr/solr/" + "hdpsearch")
-		//			.waitFor();
-			Runtime.getRuntime().exec("unalias cp");	
+					Runtime.getRuntime()
+			.exec("cp -fr /opt/solr/solr/example /opt/solr/solr/hdpsearch").waitFor();
 			Runtime.getRuntime()
-					.exec("cp -fr /opt/solr/solr/example /opt/solr/solr/"
-							+ "hdpsearch").waitFor();
-			Runtime.getRuntime()
-					.exec("mv /opt/solr/solr/" + "hdpsearch"
-							+ "/example/solr/collection1 /opt/solr/solr/" + "hdpsearch"
-							+ "/solr/" + solrcore).waitFor();
+					.exec("mv /opt/solr/solr/hdpsearch/solr/collection1 /opt/solr/solr/hdpsearch/solr/"+solrcore).waitFor();
 			Runtime.getRuntime()
 					.exec("cp " + path + "schema.xml /opt/solr/solr/"
-							+ "hdpsearch" + "/solr/" + solrcore + "/conf")
+							+ "hdpsearch" + "/solr/" + solrcore + "/conf/schema.xml")
 					.waitFor();
 
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(
@@ -312,7 +305,8 @@ public class Setup {
 		}
 		Runtime.getRuntime()
 				.exec("cp " + path + "solrconfig.xml /opt/solr/solr/"
-						+ "hdpsearch" + "/solr/" + solrcore + "/conf").waitFor();
+						+ "hdpsearch" + "/solr/" + solrcore + "/conf/solrconfig.xml")
+				.waitFor();
 
 		try {
 			bw = new BufferedWriter(new OutputStreamWriter(
@@ -337,28 +331,27 @@ public class Setup {
 						+ "/"
 						+ path
 						+ "jar/ .").waitFor();
-		
+
 		try {
 			br = new BufferedReader(new InputStreamReader(props.getClass()
 					.getResourceAsStream("/start.sh")));
-			bw = new BufferedWriter(
-					new FileWriter(path + "start.sh"));
+			bw = new BufferedWriter(new FileWriter(path + "start.sh"));
 
 			while ((line = br.readLine()) != null) {
 				if (line.contains("export APPNAME")) {
-					line = "export APPNAME="+appname;
+					line = "export APPNAME=" + appname;
 				}
 				if (line.contains("export HBASETABLE")) {
-					line = "export HBASETABLE="+hbasetable;
+					line = "export HBASETABLE=" + hbasetable;
 				}
 				if (line.contains("export SOLRCORE")) {
-					line = "export SOLRCORE="+solrcore ;
+					line = "export SOLRCORE=" + solrcore;
 				}
 				if (line.contains("export TOPIC")) {
-					line = "export TOPIC=" +topic;
+					line = "export TOPIC=" + topic;
 				}
 				if (line.contains("export FIELDS")) {
-					line = "export FIELDS="+fields;
+					line = "export FIELDS=" + fields;
 				}
 				bw.write(line + "\n");
 			}
@@ -368,9 +361,8 @@ public class Setup {
 			e.printStackTrace();
 		}
 
-		
-		System.out.println("Please find your app in "+path);
-		System.out.println("Start it: sh ./"+path+"start.sh");
+		System.out.println("Please find your app in " + path);
+		System.out.println("Start it: sh ./" + path + "start.sh");
 	}
 
 }

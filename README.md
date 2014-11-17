@@ -30,6 +30,8 @@ cd StormTopology
 mvn clean compile assembly:single
 cd ..
 
+unalias cp
+
 Create app with: 
 java -cp target/classes com.hortonworks.digitalemil.hdpappstudio.Setup YourAppname samples/your.properties
 
