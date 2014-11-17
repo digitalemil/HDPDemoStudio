@@ -258,17 +258,17 @@ public class Setup {
 		}
 
 		try {
-					Runtime.getRuntime()
-			.exec("cp -fr /opt/solr/solr/example /opt/solr/solr/hdpsearch").waitFor();
 			Runtime.getRuntime()
-					.exec("mv /opt/solr/solr/hdpsearch/solr/collection1 /opt/solr/solr/hdpsearch/solr/"+solrcore).waitFor();
+					.exec("cp -fr /opt/solr/solr/hdp/solr/hdp1 /opt/solr/solr/hdp/solr/"+solrcore)
+					.waitFor();
+			
 			Runtime.getRuntime()
 					.exec("cp " + path + "schema.xml /opt/solr/solr/"
-							+ "hdpsearch" + "/solr/" + solrcore + "/conf/schema.xml")
-					.waitFor();
+							+ "hdp" + "/solr/" + solrcore
+							+ "/conf/schema.xml").waitFor();
 
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(
-					"/opt/solr/solr/" + "hdpsearch" + "/solr/" + solrcore
+					"/opt/solr/solr/" + "hdp" + "/solr/" + solrcore
 							+ "/conf/solrconfig.xml")));
 			bw = new BufferedWriter(new FileWriter(path + "solrconfig.xml"));
 			boolean inDirFac = false;
@@ -305,12 +305,12 @@ public class Setup {
 		}
 		Runtime.getRuntime()
 				.exec("cp " + path + "solrconfig.xml /opt/solr/solr/"
-						+ "hdpsearch" + "/solr/" + solrcore + "/conf/solrconfig.xml")
-				.waitFor();
+						+ "hdp" + "/solr/" + solrcore
+						+ "/conf/solrconfig.xml").waitFor();
 
 		try {
 			bw = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream("/opt/solr/solr/" + "hdpsearch"
+					new FileOutputStream("/opt/solr/solr/" + "hdp"
 							+ "/solr/" + solrcore + "/core.properties")));
 			bw.write("name=" + solrcore + "\n");
 			bw.close();
