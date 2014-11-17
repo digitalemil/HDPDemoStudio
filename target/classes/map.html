@@ -184,11 +184,12 @@
 			var q= document.getElementById("query").value;
 			var r= document.getElementById("refresh").value;
 			alert(q+" \n "+r);
-			window.open("search?q=" + q+
+			window.open("searchLocations?q=" + q+
 					+ "&refresh=" + r);
+			
 		}
 		else {
-			window.open("hbase?refresh=" + r);
+			window.open("hbaseLocations?refresh=" + r);
 		}
 	}
 </script>

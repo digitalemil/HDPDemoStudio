@@ -261,12 +261,13 @@ public class Setup {
 		try {
 		//	Runtime.getRuntime().exec("rm -fr /opt/solr/solr/" + "hdpsearch")
 		//			.waitFor();
+			Runtime.getRuntime().exec("unalias cp");	
 			Runtime.getRuntime()
-					.exec("cp -r /opt/solr/solr/example /opt/solr/solr/"
+					.exec("cp -fr /opt/solr/solr/example /opt/solr/solr/"
 							+ "hdpsearch").waitFor();
 			Runtime.getRuntime()
-					.exec("mv /opt/solr/solr/" + solrcore
-							+ "/solr/collection1 /opt/solr/solr/" + "hdpsearch"
+					.exec("mv /opt/solr/solr/" + "hdpsearch"
+							+ "/example/solr/collection1 /opt/solr/solr/" + "hdpsearch"
 							+ "/solr/" + solrcore).waitFor();
 			Runtime.getRuntime()
 					.exec("cp " + path + "schema.xml /opt/solr/solr/"

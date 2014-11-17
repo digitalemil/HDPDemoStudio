@@ -9,9 +9,15 @@ Start Ambari
 
 Check that all services are running esp. HBase & Storm!
 
+
+Either execute:
+sh install.sh
+
+or execute the following steps manually
+
 Install maven on sandbox:
 wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
-yum install apache-maven
+yum install -y apache-maven
 
 Install kafka:
 sh ./install-kafka.sh

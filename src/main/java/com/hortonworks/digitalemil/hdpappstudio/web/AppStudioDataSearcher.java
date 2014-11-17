@@ -203,10 +203,9 @@ public class AppStudioDataSearcher extends HttpServlet {
 		while (iter.hasNext()) {
 			Location loc = new Location();
 			SolrDocument resultDoc = iter.next();
-			Float longitude = (Float) resultDoc.getFieldValue("longitude");
-			Float latitude = (Float) resultDoc.getFieldValue("latitude");
-			loc.longitude = longitude.toString();
-			loc.latitude = latitude.toString();
+			String location= (String)resultDoc.getFieldValue("location");
+			loc.latitude =  location.substring(0, location.indexOf(',')-1);
+			loc.latitude = location.substring(location.indexOf("'"+1));
 			if (locations.containsKey(loc)) {
 				Integer n = locations.get(loc);
 				loc.n = n + 1;
