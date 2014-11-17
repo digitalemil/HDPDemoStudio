@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.*;
@@ -64,17 +65,32 @@ public class AppStudioDataSearcher extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		String locations, query= "";
+		String locations="", query= request.getQueryString();
 		boolean hbase= false;
-		if(request.getRequestURI().contains("hbase")) {
+		Writer writer= response.getWriter();
+		
+		if(request.getRequestURI().contains("hbaseLocations")) {
 			locations= queryLocationsViaHBase();
 			hbase= true;
 		}
 		else {
-			locations= searchLocationsViaSolr(request);
+			if(request.getRequestURI().contains("searchLocations")) {
+				locations= searchLocationsViaSolr(request);
+			}
+			else {
+				if(request.getRequestURI().contains("solrData")) {
+					writer.write(searchLocationsViaSolr(request));
+					writer.flush();
+					return;
+				}
+				if(request.getRequestURI().contains("hbaseData")) {
+					writer.write(queryLocationsViaHBase());
+					writer.flush();
+					return;
+				}			
+			}
 		}
 		
-		Writer writer= response.getWriter();
 		
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(this
@@ -136,7 +152,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 	}
 	
 	public String queryLocationsViaHBase() throws IOException {
-		HBaseConfiguration config = (HBaseConfiguration) HBaseConfiguration.create();
+		Configuration config = (Configuration) HBaseConfiguration.create();
 		config.set("zookeeper.znode.parent", "/hbase-unsecure");
 		config.set("hbase.rootdir", "hdfs://sandbox:8020/apps/hbase/data/");
 		HTable table = new HTable(config, hbasetable);
@@ -164,6 +180,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 				locations.put(loc, loc.n);
 		    }
 		    else {
+				loc.n = 1;
 		    	locations.put(loc, 1);
 		    }
 		}
@@ -204,8 +221,10 @@ public class AppStudioDataSearcher extends HttpServlet {
 			Location loc = new Location();
 			SolrDocument resultDoc = iter.next();
 			String location= (String)resultDoc.getFieldValue("location");
-			loc.latitude =  location.substring(0, location.indexOf(',')-1);
-			loc.latitude = location.substring(location.indexOf("'"+1));
+			System.out.println("location: "+location);
+		    loc.latitude= location.substring(0, location.indexOf(","));
+		    loc.longitude= location.substring(location.indexOf(",")+1);
+				
 			if (locations.containsKey(loc)) {
 				Integer n = locations.get(loc);
 				loc.n = n + 1;

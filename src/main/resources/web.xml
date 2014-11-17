@@ -60,7 +60,7 @@
 		<servlet-name>AppStudioDataSearcher</servlet-name>
 		<url-pattern>/data/hbaseLocations</url-pattern>
 	</servlet-mapping>
-		<servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>AppStudioDataSearcher</servlet-name>
 		<url-pattern>/data/search</url-pattern>
 	</servlet-mapping>
@@ -68,4 +68,13 @@
 		<servlet-name>AppStudioDataSearcher</servlet-name>
 		<url-pattern>/data/hbase</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AppStudioDataSearcher</servlet-name>
+		<url-pattern>/data/solrData</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AppStudioDataSearcher</servlet-name>
+		<url-pattern>/data/hbaseData</url-pattern>
+	</servlet-mapping>
+
 </web-app>

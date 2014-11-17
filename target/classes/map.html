@@ -19,7 +19,7 @@
 	var circles = CIRCLES;
 	var map;
 	var mapoptions;
-
+	
 	alllocs = alllocs.replace(/;/g, "'");
 	alllocs = eval('(' + alllocs + ')');
 
@@ -100,7 +100,7 @@
 			if (forSolr == true) {
 				req.open("GET", "solrData?" + solrQuery, true);
 			} else {
-				req.open("GET", "data", true);
+				req.open("GET", "hbaseData", true);
 			}
 			req.send("");
 		} else {
@@ -183,13 +183,10 @@
 		if(FORSOLR) {
 			var q= document.getElementById("query").value;
 			var r= document.getElementById("refresh").value;
-			alert(q+" \n "+r);
-			window.open("searchLocations?q=" + q+
-					+ "&refresh=" + r);
-			
+			window.open("searchLocations?q=" + q + "&refresh=" + r);
 		}
 		else {
-			window.open("hbaseLocations?refresh=" + r);
+			window.open("hbaseLocations?refresh=true");
 		}
 	}
 </script>
@@ -200,7 +197,7 @@
 	<div id="q">
 			Please enter your Solr query: <input style="width: 80%" type="text"
 				id="query"
-				value="{!geofilt}&sfield=location&pt=43.607333333,-110.73775&d=800&sort=geodist()+asc&rows=256"/><br />
+				value="*:*"/><br />
 				<input type="checkbox" name="refresh" id="refresh" value="false"/>Auto
 					Refresh<br /> <input type="button" value="Execute" id="exec"
 					onclick="execQuery()"/>
