@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
 
 import javax.servlet.ServletConfig;
@@ -65,66 +66,96 @@ public class AppStudioDataSearcher extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-		String locations="", query= request.getQueryString();
-		boolean hbase= false;
-		Writer writer= response.getWriter();
-		
-		if(request.getRequestURI().contains("hbaseLocations")) {
-			locations= queryLocationsViaHBase();
-			hbase= true;
-		}
-		else {
-			if(request.getRequestURI().contains("searchLocations")) {
-				locations= searchLocationsViaSolr(request);
-			}
-			else {
-				if(request.getRequestURI().contains("solrData")) {
+		String locations = "", query = request.getQueryString();
+		boolean hbase = false, map = true;
+
+		Writer writer = response.getWriter();
+
+		if (request.getRequestURI().contains("hbaseLocations")) {
+			locations = queryLocationsViaHBase();
+			hbase = true;
+		} else {
+			if (request.getRequestURI().contains("searchLocations")) {
+				locations = searchLocationsViaSolr(request);
+			} else {
+				if (request.getRequestURI().contains("solrData")) {
 					writer.write(searchLocationsViaSolr(request));
 					writer.flush();
 					return;
 				}
-				if(request.getRequestURI().contains("hbaseData")) {
+				if (request.getRequestURI().contains("hbaseData")) {
 					writer.write(queryLocationsViaHBase());
 					writer.flush();
 					return;
-				}			
+				}
+				if (request.getRequestURI().contains("hbase")) {
+					hbase= true;
+					locations = getHBaseData();
+					map= false;
+				} else {
+					locations = getSolrData(request);
+					map= false;
+				}
 			}
 		}
-		
-		
-		try {
-			BufferedReader br = new BufferedReader(new InputStreamReader(this
-					.getClass().getResourceAsStream("/map.html")));
-			String line;
-			while ((line = br.readLine()) != null) {
-				if(line.contains("var LOCATIONS")) {
-					System.out.println("LOCATIONS: "+locations);
-					line= "var LOCATIONS = \""+locations+"\";";
-				}
-				if(!hbase && line.contains("var SOLRQUERY")) {
-					line= "var SOLRQUERY = \""+query+"\";";
-				}
-				if(line.contains("var AUTOREFRESH")) {
-					String auto= "true;";
-					if(request.getParameter("refresh")!= null && "false".equals(request.getParameter("refresh"))) {
-						auto= "false;";
+
+		if (map) {
+			try {
+				BufferedReader br = new BufferedReader(new InputStreamReader(
+						this.getClass().getResourceAsStream("/map.html")));
+				String line;
+				while ((line = br.readLine()) != null) {
+					if (line.contains("var LOCATIONS")) {
+						System.out.println("LOCATIONS: " + locations);
+						line = "var LOCATIONS = \"" + locations + "\";";
 					}
-					line= "var AUTOREFRESH = "+auto+";";
+					if (!hbase && line.contains("var SOLRQUERY")) {
+						line = "var SOLRQUERY = \"" + query + "\";";
+					}
+					if (line.contains("var AUTOREFRESH")) {
+						String auto = "true;";
+						if (request.getParameter("refresh") != null
+								&& !"checked".equals(request
+										.getParameter("refresh"))) {
+							auto = "false;";
+						}
+						line = "var AUTOREFRESH = " + auto + ";";
+					}
+					if (line.contains("var FORSOLR")) {
+						line = "var FORSOLR = " + !hbase + ";";
+					}
+					if (line.contains("var SHOWQUERY")) {
+						line = "var SHOWQUERY = " + !hbase + ";";
+					}
+					writer.write(line + "\n");
 				}
-				if(line.contains("var FORSOLR")) {
-					line= "var FORSOLR = "+!hbase+";";
-				}
-				if(line.contains("var SHOWQUERY")) {
-					line= "var SHOWQUERY = "+!hbase+";";
-				}
-				writer.write(line+"\n");
+				br.close();
+			} catch (Exception e) {
+				e.printStackTrace();
 			}
-			br.close();
-		} catch (Exception e) {
-			e.printStackTrace();
+		} else {
+			try {
+				BufferedReader br = new BufferedReader(new InputStreamReader(
+						this.getClass().getResourceAsStream("/listdata.html")));
+				String line;
+				while ((line = br.readLine()) != null) {
+					if (line.contains("<DATAHERE/>")) {
+						System.out.println("LOCATIONS: " + locations);
+						line = locations;
+					}
+					if (line.contains("var FORSOLR")) {
+						line = "var FORSOLR = " + !hbase + ";";
+					}
+					writer.write(line + "\n");
+				}
+				br.close();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
 		writer.flush();
 	}
+
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
@@ -135,8 +166,8 @@ public class AppStudioDataSearcher extends HttpServlet {
 		// TODO Auto-generated method stub
 	}
 
-	public String getLocationsAsString(HashMap<Location, Integer> locations) {
-		int total= locations.size();
+	public String getLocationsAsJSONString(HashMap<Location, Integer> locations) {
+		int total = locations.size();
 		StringBuffer ret = new StringBuffer("{ 'total':'" + total
 				+ "', 'locations': [");
 		Set<Location> keys = locations.keySet();
@@ -150,7 +181,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 		ret.append("] }");
 		return ret.toString();
 	}
-	
+
 	public String queryLocationsViaHBase() throws IOException {
 		Configuration config = (Configuration) HBaseConfiguration.create();
 		config.set("zookeeper.znode.parent", "/hbase-unsecure");
@@ -162,39 +193,88 @@ public class AppStudioDataSearcher extends HttpServlet {
 		scan.addFamily(Bytes.toBytes(hbasecolumnfamily));
 
 		HashMap<Location, Integer> locations = new HashMap<Location, Integer>();
-		
+
 		ResultScanner scanner = table.getScanner(scan);
-		for (Result result = scanner.next(); (result != null); result = scanner.next()) {
-			List<KeyValue> kvs= result.getColumn(hbasecolumnfamily.getBytes(), "location".getBytes());
-		    Location loc= new Location();
-		    String location= new String(kvs.get(0).getValue());
-		    String latitude= location.substring(0, location.indexOf(","));
-		    String longitude= location.substring(location.indexOf(",")+1);
-		    loc.latitude= latitude;
-		    loc.longitude= longitude;
-		    
-		    if(locations.containsKey(loc)) {
-		    	Integer n = locations.get(loc);
+		for (Result result = scanner.next(); (result != null); result = scanner
+				.next()) {
+			List<KeyValue> kvs = result.getColumn(hbasecolumnfamily.getBytes(),
+					"location".getBytes());
+			Location loc = new Location();
+			String location = new String(kvs.get(0).getValue());
+			String latitude = location.substring(0, location.indexOf(","));
+			String longitude = location.substring(location.indexOf(",") + 1);
+			loc.latitude = latitude;
+			loc.longitude = longitude;
+
+			if (locations.containsKey(loc)) {
+				Integer n = locations.get(loc);
 				loc.n = n + 1;
 				locations.remove(loc);
 				locations.put(loc, loc.n);
-		    }
-		    else {
+			} else {
 				loc.n = 1;
-		    	locations.put(loc, 1);
-		    }
+				locations.put(loc, 1);
+			}
 		}
 		table.close();
-		return getLocationsAsString(locations);
+		return getLocationsAsJSONString(locations);
 	}
 
+	public String getHBaseData() throws IOException {
+		StringBuffer ret= new StringBuffer();
+		Configuration config = (Configuration) HBaseConfiguration.create();
+		config.set("zookeeper.znode.parent", "/hbase-unsecure");
+		config.set("hbase.rootdir", "hdfs://sandbox:8020/apps/hbase/data/");
+		HTable table = new HTable(config, hbasetable);
+		Scan scan = new Scan();
+		scan.setCaching(1024);
+		scan.setBatch(1024);
+		scan.addFamily(Bytes.toBytes(hbasecolumnfamily));
+
+		ResultScanner scanner = table.getScanner(scan);
+
+		boolean firstrow= true;
+		for (Result result = scanner.next(); (result != null); result = scanner
+				.next()) {
+			NavigableMap<byte[],byte[]>	kvs= result.getFamilyMap(Bytes.toBytes(hbasecolumnfamily));
+			boolean firstcol= true;
+			if(firstrow) {
+				for (byte[] key : kvs.keySet()) {
+					if(!firstcol) {
+						ret.append(", ");
+					}
+					else {
+						firstcol= false;
+					}
+					ret.append(new String(key));
+				}	
+				ret.append("\n");
+				firstrow= false;
+			}
+			firstcol= true;
+			for (byte[] key : kvs.keySet()) {
+				if(!firstcol) {
+					ret.append(", ");
+				}
+				else {
+					firstcol= false;
+				}
+				ret.append(new String(kvs.get(key)));				
+			}
+			ret.append("\n");
+			
+		}
+		table.close();
+		return ret.toString();
+	}
+	
 	public String searchLocationsViaSolr(HttpServletRequest request) {
 		HashMap<Location, Integer> locations = new HashMap<Location, Integer>();
 
 		SolrServer server = new HttpSolrServer(solrurl);
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setRows(1024);
-		
+
 		Map<java.lang.String, java.lang.String[]> params = request
 				.getParameterMap();
 		for (Object param : params.keySet()) {
@@ -207,7 +287,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 			}
 			solrQuery.set(param.toString(), buf.toString());
 		}
-		System.out.println("solr query: "+solrQuery);
+		System.out.println("solr query: " + solrQuery);
 		QueryResponse rsp = null;
 		try {
 			rsp = server.query(solrQuery);
@@ -216,15 +296,14 @@ public class AppStudioDataSearcher extends HttpServlet {
 		}
 		Iterator<SolrDocument> iter = rsp.getResults().iterator();
 
-		
 		while (iter.hasNext()) {
 			Location loc = new Location();
 			SolrDocument resultDoc = iter.next();
-			String location= (String)resultDoc.getFieldValue("location");
-			System.out.println("location: "+location);
-		    loc.latitude= location.substring(0, location.indexOf(","));
-		    loc.longitude= location.substring(location.indexOf(",")+1);
-				
+			String location = (String) resultDoc.getFieldValue("location");
+			System.out.println("location: " + location);
+			loc.latitude = location.substring(0, location.indexOf(","));
+			loc.longitude = location.substring(location.indexOf(",") + 1);
+
 			if (locations.containsKey(loc)) {
 				Integer n = locations.get(loc);
 				loc.n = n + 1;
@@ -236,6 +315,74 @@ public class AppStudioDataSearcher extends HttpServlet {
 			}
 		}
 
-		return getLocationsAsString(locations);
+		return getLocationsAsJSONString(locations);
 	}
+
+	public String getSolrData(HttpServletRequest request) {
+		StringBuffer ret = new StringBuffer();
+
+		SolrServer server = new HttpSolrServer(solrurl);
+		SolrQuery solrQuery = new SolrQuery();
+		solrQuery.setRows(1024);
+
+		Map<java.lang.String, java.lang.String[]> params = request
+				.getParameterMap();
+		for (Object param : params.keySet()) {
+			StringBuffer buf = new StringBuffer();
+			if (param.equals("refresh")) {
+				continue;
+			}
+			for (int i = 0; i < params.get(param).length; i++) {
+				buf.append(params.get(param)[i]);
+			}
+			solrQuery.set(param.toString(), buf.toString());
+		}
+		QueryResponse rsp = null;
+		try {
+			rsp = server.query(solrQuery);
+		} catch (SolrServerException e) {
+			e.printStackTrace();
+		}
+		Iterator<SolrDocument> iter = rsp.getResults().iterator();
+
+		boolean firstrow= true;
+		while (iter.hasNext()) {
+			SolrDocument resultDoc = iter.next();
+			Map<String, Object> kvs= resultDoc.getFieldValueMap();
+			boolean firstcol= true;
+			if(firstrow) {
+				for (String key : kvs.keySet()) {
+					if(key.contains("_version_"))
+						continue;
+					if(!firstcol) {
+						ret.append(", ");
+					}
+					else {
+						firstcol= false;
+					}
+					ret.append(key);
+				}	
+				ret.append("\n");
+				firstrow= false;
+			}
+			
+			firstcol= true;
+			for (String key : kvs.keySet()) {
+				if(key.contains("_version_"))
+					continue;
+				if(!firstcol) {
+					ret.append(", ");
+				}
+				else {
+					firstcol= false;
+				}
+				ret.append(resultDoc.getFieldValue(key));				
+			}
+			ret.append("\n");
+			
+		}
+
+		return ret.toString();
+	}
+
 }

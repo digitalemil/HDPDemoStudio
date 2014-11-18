@@ -116,8 +116,10 @@ public class Setup {
 						String type = props.getProperty("type_" + i);
 						String others = props.getProperty("other_" + i);
 
-						if (name == null || type == null)
+						if (name == null)
 							break;
+						if(type== null)
+							type= "string";
 						if (others == null)
 							others = OTHERS;
 

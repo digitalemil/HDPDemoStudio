@@ -176,17 +176,18 @@
 			circles[i] = circle;
 		}
 	}
-	if (autorefresh)
+	if (autorefresh) {
+		document.getElementById("refresh").checked="checked";
 		setTimeout(hitDataUrl, 2000);
-
+	}
 	function execQuery(q) {
 		if(FORSOLR) {
 			var q= document.getElementById("query").value;
-			var r= document.getElementById("refresh").value;
-			window.open("searchLocations?q=" + q + "&refresh=" + r);
+			var r= document.getElementById("refresh").checked;
+			location.href="searchLocations?q=" + q + "&refresh=" + r;
 		}
 		else {
-			window.open("hbaseLocations?refresh=true");
+			location.href="hbaseLocations?refresh=checked";
 		}
 	}
 </script>
