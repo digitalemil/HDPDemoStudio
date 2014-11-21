@@ -176,14 +176,12 @@
 			circles[i] = circle;
 		}
 	}
-	if (autorefresh) {
-		document.getElementById("refresh").checked="checked";
-		setTimeout(hitDataUrl, 2000);
-	}
+	
 	function execQuery(q) {
 		if(FORSOLR) {
 			var q= document.getElementById("query").value;
 			var r= document.getElementById("refresh").checked;
+		
 			location.href="searchLocations?q=" + q + "&refresh=" + r;
 		}
 		else {
@@ -203,6 +201,12 @@
 					Refresh<br /> <input type="button" value="Execute" id="exec"
 					onclick="execQuery()"/>
 	</div>
+	<script>
+	if (autorefresh) {
+		document.getElementById("refresh").setAttribute("checked", "checked");
+		setTimeout(hitDataUrl, 800);
+	}
+	</script>
 </body>
 </html>
 

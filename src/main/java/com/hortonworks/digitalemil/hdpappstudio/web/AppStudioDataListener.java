@@ -75,6 +75,7 @@ public class AppStudioDataListener extends HttpServlet {
 				break;
 			json.append(line);
 		} while(true);
+		
 		try {
 			jobj= new JSONObject(json.toString());
 		} catch (JSONException e) {

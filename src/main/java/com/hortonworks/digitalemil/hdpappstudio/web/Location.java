@@ -2,14 +2,29 @@ package com.hortonworks.digitalemil.hdpappstudio.web;
 
 public class Location {
 	public String latitude, longitude;
-	public int n;
+	public double n;
+	private boolean pivot= false;
 	
 	public String toString() {
 		return "{ ;latitude;:"+latitude+", ;longitude;:"+longitude+", ;n;:"+n+"}";
 	}
+	
+	/*
+	public Location() {
+		super();
+		pivot= false;
+	}
+	*/
+
+	public Location(boolean p) {
+		super();
+		pivot= p;
+	}
 
 	@Override
 	public int hashCode() {
+		if(pivot)
+			return super.hashCode();
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
@@ -21,6 +36,8 @@ public class Location {
 
 	@Override
 	public boolean equals(Object obj) {
+		if(pivot)
+			return super.equals(obj);
 		if (this == obj)
 			return true;
 		if (obj == null)

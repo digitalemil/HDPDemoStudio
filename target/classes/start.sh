@@ -7,6 +7,8 @@ export APPNAME=hdp
 export SOLRCORE=hdp
 export HBASETABLE=HDP
 export TOPIC=default
+export HIVETABLE=hdp
+export DDL=Create Table bar \(id BigInt, foo String\)\;
 
 echo Starting...
 
@@ -26,14 +28,22 @@ sleep 10
 echo Creating Kafka Topic: $TOPIC
 /opt/kafka/bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 2 --topic $TOPIC
 
-echo Starting Solr
 cwd=$(pwd)
 cd /opt/solr/solr/hdp
-nohup java -jar start.jar >solr.out 2>solr.err </dev/null &
+echo Stoping Solr
+java -DSTOP.KEY=secret -DSTOP.PORT=8983 -jar start.jar --stop
+echo Starting Solr
+nohup java -DSTOP.KEY=secret -jar start.jar >solr.out 2>solr.err </dev/null &
 cd $cwd
 
+echo Creating Hive Table: $HIVETABLE
+
+sudo -u hdfs hadoop fs -mkdir -p /user/guest/hdpappstudio/+$HBASETABLE
+
+sudo -u hive echo $DDL | hive
+
 echo Deploying Storm topology
-storm jar $HDPAPPSTUDIO_HOME/StormTopology/target/HDPAppStudioStormTopology-0.1.1-distribution.jar com.hortonworks.digitalemil.hdpappstudio.storm.Topology $APPNAME 127.0.0.1:2181 http://127.0.0.1:8983/solr/$SOLRCORE/update/json?commit=true $HBASETABLE all $TOPIC $FIELDS
+storm jar $HDPAPPSTUDIO_HOME/StormTopology/target/HDPAppStudioStormTopology-0.1.1-distribution.jar com.hortonworks.digitalemil.hdpappstudio.storm.Topology $APPNAME 127.0.0.1:2181 http://127.0.0.1:8983/solr/$SOLRCORE/update/json?commit=true $HBASETABLE all $TOPIC $HIVETABLE $FIELDS
 
 echo Execute 
 echo tail -f /var/log/ambari-server/ambari-server.log

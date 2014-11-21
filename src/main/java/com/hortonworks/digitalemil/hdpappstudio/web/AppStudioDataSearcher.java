@@ -36,7 +36,9 @@ import org.apache.solr.common.SolrDocument;
  */
 public class AppStudioDataSearcher extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	protected String hbasetable, hbasecolumnfamily, solrurl;
+	protected String hbasetable, hbasecolumnfamily, solrurl, pivotfield;
+	protected boolean pivot = false;
+	double max = 0;
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -53,6 +55,10 @@ public class AppStudioDataSearcher extends HttpServlet {
 		hbasetable = cfg.getInitParameter("hbasetable");
 		hbasecolumnfamily = cfg.getInitParameter("hbasecolumnfamily");
 		solrurl = cfg.getInitParameter("solrurl");
+		pivotfield = cfg.getInitParameter("pivotfield");
+
+		if (pivotfield.length() > 0)
+			pivot = true;
 
 		System.out.println("Search Params: ");
 		System.out.println("HBase Table: " + hbasetable);
@@ -89,12 +95,12 @@ public class AppStudioDataSearcher extends HttpServlet {
 					return;
 				}
 				if (request.getRequestURI().contains("hbase")) {
-					hbase= true;
+					hbase = true;
 					locations = getHBaseData();
-					map= false;
+					map = false;
 				} else {
 					locations = getSolrData(request);
-					map= false;
+					map = false;
 				}
 			}
 		}
@@ -115,7 +121,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 					if (line.contains("var AUTOREFRESH")) {
 						String auto = "true;";
 						if (request.getParameter("refresh") != null
-								&& !"checked".equals(request
+								&& !"true".equals(request
 										.getParameter("refresh"))) {
 							auto = "false;";
 						}
@@ -139,6 +145,15 @@ public class AppStudioDataSearcher extends HttpServlet {
 						this.getClass().getResourceAsStream("/listdata.html")));
 				String line;
 				while ((line = br.readLine()) != null) {
+					if (line.contains("var AUTOREFRESH")) {
+						String auto = "true;";
+						if (request.getParameter("refresh") != null
+								&& !"true".equals(request
+										.getParameter("refresh"))) {
+							auto = "false;";
+						}
+						line = "var AUTOREFRESH = " + auto + ";";
+					}
 					if (line.contains("<DATAHERE/>")) {
 						System.out.println("LOCATIONS: " + locations);
 						line = locations;
@@ -156,7 +171,6 @@ public class AppStudioDataSearcher extends HttpServlet {
 		writer.flush();
 	}
 
-
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
 	 *      response)
@@ -166,13 +180,17 @@ public class AppStudioDataSearcher extends HttpServlet {
 		// TODO Auto-generated method stub
 	}
 
-	public String getLocationsAsJSONString(HashMap<Location, Integer> locations) {
+	public String getLocationsAsJSONString(HashMap<Location, Double> locations) {
 		int total = locations.size();
 		StringBuffer ret = new StringBuffer("{ 'total':'" + total
 				+ "', 'locations': [");
 		Set<Location> keys = locations.keySet();
 		int n = 0;
+
 		for (Location l : keys) {
+			if (pivot) {
+				l.n = l.n / max * 10.0;
+			}
 			ret.append(l.toString());
 			if (n < total - 1)
 				ret.append(", ");
@@ -192,36 +210,50 @@ public class AppStudioDataSearcher extends HttpServlet {
 		scan.setBatch(1024);
 		scan.addFamily(Bytes.toBytes(hbasecolumnfamily));
 
-		HashMap<Location, Integer> locations = new HashMap<Location, Integer>();
+		HashMap<Location, Double> locations = new HashMap<Location, Double>();
 
 		ResultScanner scanner = table.getScanner(scan);
 		for (Result result = scanner.next(); (result != null); result = scanner
 				.next()) {
 			List<KeyValue> kvs = result.getColumn(hbasecolumnfamily.getBytes(),
 					"location".getBytes());
-			Location loc = new Location();
+			Location loc = new Location(pivot?true:false);
 			String location = new String(kvs.get(0).getValue());
 			String latitude = location.substring(0, location.indexOf(","));
 			String longitude = location.substring(location.indexOf(",") + 1);
 			loc.latitude = latitude;
 			loc.longitude = longitude;
 
-			if (locations.containsKey(loc)) {
-				Integer n = locations.get(loc);
+			if (pivot) {
+				double p = 0;
+				try {
+					List<KeyValue> kvs2 = result
+							.getColumn(hbasecolumnfamily.getBytes(),
+									pivotfield.getBytes());
+					p = new Double(new String(kvs2.get(0).getValue()));
+				} catch (Exception e) {
+				}
+				if (max < p)
+					max = p;
+				loc.n = p;
+				locations.put(loc, p);
+			} else if (locations.containsKey(loc)) {
+				Integer n = (int) Math.round(locations.get(loc));
 				loc.n = n + 1;
 				locations.remove(loc);
 				locations.put(loc, loc.n);
 			} else {
 				loc.n = 1;
-				locations.put(loc, 1);
+				locations.put(loc, new Double(1));
 			}
 		}
 		table.close();
 		return getLocationsAsJSONString(locations);
+
 	}
 
 	public String getHBaseData() throws IOException {
-		StringBuffer ret= new StringBuffer();
+		StringBuffer ret = new StringBuffer();
 		Configuration config = (Configuration) HBaseConfiguration.create();
 		config.set("zookeeper.znode.parent", "/hbase-unsecure");
 		config.set("hbase.rootdir", "hdfs://sandbox:8020/apps/hbase/data/");
@@ -233,43 +265,42 @@ public class AppStudioDataSearcher extends HttpServlet {
 
 		ResultScanner scanner = table.getScanner(scan);
 
-		boolean firstrow= true;
+		boolean firstrow = true;
 		for (Result result = scanner.next(); (result != null); result = scanner
 				.next()) {
-			NavigableMap<byte[],byte[]>	kvs= result.getFamilyMap(Bytes.toBytes(hbasecolumnfamily));
-			boolean firstcol= true;
-			if(firstrow) {
+			NavigableMap<byte[], byte[]> kvs = result.getFamilyMap(Bytes
+					.toBytes(hbasecolumnfamily));
+			boolean firstcol = true;
+			if (firstrow) {
 				for (byte[] key : kvs.keySet()) {
-					if(!firstcol) {
+					if (!firstcol) {
 						ret.append(", ");
-					}
-					else {
-						firstcol= false;
+					} else {
+						firstcol = false;
 					}
 					ret.append(new String(key));
-				}	
+				}
 				ret.append("\n");
-				firstrow= false;
+				firstrow = false;
 			}
-			firstcol= true;
+			firstcol = true;
 			for (byte[] key : kvs.keySet()) {
-				if(!firstcol) {
+				if (!firstcol) {
 					ret.append(", ");
+				} else {
+					firstcol = false;
 				}
-				else {
-					firstcol= false;
-				}
-				ret.append(new String(kvs.get(key)));				
+				ret.append(new String(kvs.get(key)));
 			}
 			ret.append("\n");
-			
+
 		}
 		table.close();
 		return ret.toString();
 	}
-	
+
 	public String searchLocationsViaSolr(HttpServletRequest request) {
-		HashMap<Location, Integer> locations = new HashMap<Location, Integer>();
+		HashMap<Location, Double> locations = new HashMap<Location, Double>();
 
 		SolrServer server = new HttpSolrServer(solrurl);
 		SolrQuery solrQuery = new SolrQuery();
@@ -297,21 +328,36 @@ public class AppStudioDataSearcher extends HttpServlet {
 		Iterator<SolrDocument> iter = rsp.getResults().iterator();
 
 		while (iter.hasNext()) {
-			Location loc = new Location();
+			
+			Location loc = new Location(pivot?true:false);
 			SolrDocument resultDoc = iter.next();
 			String location = (String) resultDoc.getFieldValue("location");
 			System.out.println("location: " + location);
 			loc.latitude = location.substring(0, location.indexOf(","));
 			loc.longitude = location.substring(location.indexOf(",") + 1);
 
-			if (locations.containsKey(loc)) {
-				Integer n = locations.get(loc);
-				loc.n = n + 1;
-				locations.remove(loc);
-				locations.put(loc, loc.n);
+			if (pivot) {
+				double p = 0;
+				try {
+					p = Double.parseDouble((String) resultDoc
+							.getFieldValue(pivotfield));
+				} catch (Exception e) {
+
+				}
+				if (max < p)
+					max = p;
+				loc.n = p;
+				locations.put(loc, p);
 			} else {
-				loc.n = 1;
-				locations.put(loc, 1);
+				if (locations.containsKey(loc)) {
+					Integer n = (int) Math.round((locations.get(loc)));
+					loc.n = n + 1;
+					locations.remove(loc);
+					locations.put(loc, new Double(loc.n));
+				} else {
+					loc.n = 1;
+					locations.put(loc, new Double(1));
+				}
 			}
 		}
 
@@ -345,41 +391,39 @@ public class AppStudioDataSearcher extends HttpServlet {
 		}
 		Iterator<SolrDocument> iter = rsp.getResults().iterator();
 
-		boolean firstrow= true;
+		boolean firstrow = true;
 		while (iter.hasNext()) {
 			SolrDocument resultDoc = iter.next();
-			Map<String, Object> kvs= resultDoc.getFieldValueMap();
-			boolean firstcol= true;
-			if(firstrow) {
+			Map<String, Object> kvs = resultDoc.getFieldValueMap();
+			boolean firstcol = true;
+			if (firstrow) {
 				for (String key : kvs.keySet()) {
-					if(key.contains("_version_"))
+					if (key.contains("_version_"))
 						continue;
-					if(!firstcol) {
+					if (!firstcol) {
 						ret.append(", ");
-					}
-					else {
-						firstcol= false;
+					} else {
+						firstcol = false;
 					}
 					ret.append(key);
-				}	
+				}
 				ret.append("\n");
-				firstrow= false;
+				firstrow = false;
 			}
-			
-			firstcol= true;
+
+			firstcol = true;
 			for (String key : kvs.keySet()) {
-				if(key.contains("_version_"))
+				if (key.contains("_version_"))
 					continue;
-				if(!firstcol) {
+				if (!firstcol) {
 					ret.append(", ");
+				} else {
+					firstcol = false;
 				}
-				else {
-					firstcol= false;
-				}
-				ret.append(resultDoc.getFieldValue(key));				
+				ret.append(resultDoc.getFieldValue(key));
 			}
 			ret.append("\n");
-			
+
 		}
 
 		return ret.toString();

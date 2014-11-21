@@ -19,13 +19,23 @@ import backtype.storm.StormSubmitter;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
 
+import org.apache.storm.hdfs.bolt.HdfsBolt;
+import org.apache.storm.hdfs.bolt.format.DefaultFileNameFormat;
+import org.apache.storm.hdfs.bolt.format.DelimitedRecordFormat;
+import org.apache.storm.hdfs.bolt.format.FileNameFormat;
+import org.apache.storm.hdfs.bolt.format.RecordFormat;
+import org.apache.storm.hdfs.bolt.rotation.*;
+import org.apache.storm.hdfs.bolt.rotation.FileSizeRotationPolicy.Units;
+import org.apache.storm.hdfs.bolt.sync.CountSyncPolicy;
+import org.apache.storm.hdfs.bolt.sync.SyncPolicy;
 
 public class Topology {
 
 	public static final String KAFKA_SPOUT_ID = "kafka-spout";
 	public static final String INDEXSOLR_BOLT_ID = "solr-bolt";
-	public static final String HBASE__BOLT_ID = "hbase-bolt";
-
+	public static final String HBASE_BOLT_ID = "hbase-bolt";
+	public static final String HDFS_BOLT_ID = "hdfs-bolt";
+	
 	public static final String TUPLETRANSFORMER_BOLT_ID = "tupletransformer-bolt";
 	
 	public static void main(String[] args) throws Exception {
@@ -47,11 +57,11 @@ public class Topology {
 		KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
 		IndexSolr index= new IndexSolr(args[2]);
 		
-		int l= args.length- 6;
+		int l= args.length- 7;
 		String [] keys= new String[l];
 		
 		for(int i=0; i< l; i++) {
-			keys[i]= args[i+6];
+			keys[i]= args[i+7];
 			System.out.print("Field: "+keys[i]+" ");
 		}
 		System.out.println();
@@ -63,9 +73,11 @@ public class Topology {
 	
 		String hbasetable= args[3];
 		String columnfamily= args[4];
+		String hivetable= args[6];
 		
 		System.out.println("HBase Table: "+hbasetable);
 		System.out.println("HBase CF: "+columnfamily);
+		System.out.println("Hive Table: "+hivetable);
 		
 		Config stormconfig = new Config();
 
@@ -83,15 +95,34 @@ public class Topology {
 		HBaseBolt hbolt = new HBaseBolt(hbasetable, mapper).withConfigKey("hbase.conf");
 		
 		TupleTransformer tt= new TupleTransformer(keys);
+		
+		RecordFormat format = new DelimitedRecordFormat().withFields(new Fields(fields)).withFieldDelimiter("|");
+
+		//Synchronize data buffer with the filesystem every 1000 tuples
+		SyncPolicy syncPolicy = new CountSyncPolicy(1);
+
+		// Rotate data files when they reach five MB
+		FileRotationPolicy rotationPolicy = new FileSizeRotationPolicy(5.0f, Units.MB);
+
+		// Use default, Storm-generated file names
+		FileNameFormat fileNameFormat = new DefaultFileNameFormat().withPath("/user/guest/hdpappstudio/"+hivetable);
+
+		// Instantiate the HdfsBolt
+		HdfsBolt hdfsbolt = new HdfsBolt()
+		         .withFsUrl("hdfs://sandbox.hortonworks.com:8020")
+		         .withFileNameFormat(fileNameFormat)
+		         .withRecordFormat(format)
+		         .withRotationPolicy(rotationPolicy)
+		         .withSyncPolicy(syncPolicy);
 
 		TopologyBuilder builder = new TopologyBuilder();		
 		
 		builder.setSpout(KAFKA_SPOUT_ID, kafkaSpout);
 			
 		builder.setBolt(TUPLETRANSFORMER_BOLT_ID, tt).shuffleGrouping(KAFKA_SPOUT_ID);
-		
+		builder.setBolt(HDFS_BOLT_ID, hdfsbolt).shuffleGrouping(TUPLETRANSFORMER_BOLT_ID);
 		builder.setBolt(INDEXSOLR_BOLT_ID, index).shuffleGrouping(TUPLETRANSFORMER_BOLT_ID);
-		builder.setBolt(HBASE__BOLT_ID, hbolt).shuffleGrouping(TUPLETRANSFORMER_BOLT_ID);
+		builder.setBolt(HBASE_BOLT_ID, hbolt).shuffleGrouping(TUPLETRANSFORMER_BOLT_ID);
 		
 		
 		//LocalCluster cluster = new LocalCluster();

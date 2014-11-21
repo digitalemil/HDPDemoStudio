@@ -51,6 +51,10 @@
 			<param-name>solrurl</param-name>
 			<param-value>SOLRURL</param-value>
 		</init-param>
+		<init-param>
+			<param-name>pivotfield</param-name>
+			<param-value>PIVOTFIELD</param-value>
+		</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>AppStudioDataSearcher</servlet-name>

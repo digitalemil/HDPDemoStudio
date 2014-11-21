@@ -54,9 +54,12 @@
 		}
 		function doSubmit() {
 			var id= document.getElementById("id").value;
+			var l= document.getElementById("location").value;
+			if(l== undefined || l== null || l=="")
+				l="0,0";
 			
 			json= '{ "id":"'+id+'"'
-			+', "location":"'+document.getElementById("location").value+'"'
+			+', "location":"'+l+'"'
 			/*MYMARKER2*/ 
 			+'}';
 			id++;

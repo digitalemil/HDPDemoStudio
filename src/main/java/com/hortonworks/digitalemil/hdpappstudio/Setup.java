@@ -60,12 +60,18 @@ public class Setup {
 		String showLocation = props.getProperty("showLocation");
 		String hbasetable = props.getProperty("hbasetable");
 		String topic = props.getProperty("topic");
+		String hivetable = props.getProperty("hivetable");
+		String pivotfield = props.getProperty("pivotfield");
 		String fields = "\"id location ";
+
 		if (topic == null) {
 			topic = "default";
 		}
 		if (solrcore == null) {
 			solrcore = "hdpcore";
+		}
+		if (hivetable == null) {
+			hivetable = "HDPAppStudio";
 		}
 		if (hbasetable == null) {
 			hbasetable = "mytab";
@@ -73,16 +79,30 @@ public class Setup {
 		if (showLocation == null) {
 			showLocation = "true";
 		}
+		if (pivotfield == null) {
+			pivotfield = "";
+		}
+		String ddl = "\"Create External Table " + hivetable + " (id String, location String, ";
+
 		int i = 5;
 		do {
 			String name = props.getProperty("name_" + i);
 			if (name == null)
 				break;
+			String type = props.getProperty("type_" + i);
+			if (type == null)
+				type = "String";
+			if ("long".equals(type))
+				type = "BigInt";
+			if(i> 5)
+				ddl= ddl+", ";
+			ddl = ddl + name + " " + type;
 			fields = fields + name + " ";
 			i++;
 		} while (true);
 		fields = fields + "\"";
-
+		ddl= ddl+ ") ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' STORED AS TEXTFILE LOCATION '/user/guest/hdpappstudio/" +hivetable+"';\"";
+		
 		try {
 			br = new BufferedReader(new InputStreamReader(props.getClass()
 					.getResourceAsStream("/view.xml")));
@@ -118,8 +138,8 @@ public class Setup {
 
 						if (name == null)
 							break;
-						if(type== null)
-							type= "string";
+						if (type == null)
+							type = "string";
 						if (others == null)
 							others = OTHERS;
 
@@ -165,6 +185,9 @@ public class Setup {
 				if (line.contains("SOLRURL")) {
 					line = "<param-value>" + "http://127.0.0.1:8983/solr/"
 							+ solrcore + "</param-value>";
+				}
+				if (line.contains("PIVOTFIELD")) {
+					line = "<param-value>" + pivotfield + "</param-value>";
 				}
 				bw.write(line + "\n");
 			}
@@ -261,13 +284,13 @@ public class Setup {
 
 		try {
 			Runtime.getRuntime()
-					.exec("cp -fr /opt/solr/solr/hdp/solr/hdp1 /opt/solr/solr/hdp/solr/"+solrcore)
-					.waitFor();
-			
+					.exec("cp -fr /opt/solr/solr/hdp/solr/hdp1 /opt/solr/solr/hdp/solr/"
+							+ solrcore).waitFor();
+
 			Runtime.getRuntime()
-					.exec("cp " + path + "schema.xml /opt/solr/solr/"
-							+ "hdp" + "/solr/" + solrcore
-							+ "/conf/schema.xml").waitFor();
+					.exec("cp " + path + "schema.xml /opt/solr/solr/" + "hdp"
+							+ "/solr/" + solrcore + "/conf/schema.xml")
+					.waitFor();
 
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(
 					"/opt/solr/solr/" + "hdp" + "/solr/" + solrcore
@@ -306,14 +329,14 @@ public class Setup {
 			e.printStackTrace();
 		}
 		Runtime.getRuntime()
-				.exec("cp " + path + "solrconfig.xml /opt/solr/solr/"
-						+ "hdp" + "/solr/" + solrcore
-						+ "/conf/solrconfig.xml").waitFor();
+				.exec("cp " + path + "solrconfig.xml /opt/solr/solr/" + "hdp"
+						+ "/solr/" + solrcore + "/conf/solrconfig.xml")
+				.waitFor();
 
 		try {
 			bw = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream("/opt/solr/solr/" + "hdp"
-							+ "/solr/" + solrcore + "/core.properties")));
+					new FileOutputStream("/opt/solr/solr/" + "hdp" + "/solr/"
+							+ solrcore + "/core.properties")));
 			bw.write("name=" + solrcore + "\n");
 			bw.close();
 		} catch (Exception e) {
@@ -354,6 +377,12 @@ public class Setup {
 				}
 				if (line.contains("export FIELDS")) {
 					line = "export FIELDS=" + fields;
+				}
+				if (line.contains("export DDL")) {
+					line = "export DDL=" + ddl;
+				}
+				if (line.contains("export HIVETABLE")) {
+					line = "export HIVETABLE=" + hivetable;
 				}
 				bw.write(line + "\n");
 			}

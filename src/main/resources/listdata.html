@@ -15,8 +15,7 @@
 			Please enter your Solr query: <input style="width: 80%" type="text"
 				id="query"
 				value="*:*"/><br />
-				<input type="checkbox" name="refresh" id="refresh" value="false"/>Auto
-					Refresh<br /> <input type="button" value="Execute" id="exec"
+				<input type="button" value="Execute" id="exec"
 					onclick="execQuery()"/>
 		</div>
 		<div id="table">
@@ -33,7 +32,7 @@
 		var sY = h / 768;
 		var bgh = (768 * window.innerWidth / 1024);
 		var FORSOLR= false;
-
+	
 		var bg = document.getElementById("bg");
 		bg.setAttribute("style",
 				"position:absolute; top:0px; left:0px; width: "
@@ -50,10 +49,6 @@
 		if (FORSOLR == false) {
 			document.getElementById("q").setAttribute("style",
 					"display:none;");
-		}
-		
-		if (autorefresh) {
-			document.getElementById("refresh").checked="checked";
 		}
 		
 		function execQuery(q) {
