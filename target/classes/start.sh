@@ -37,9 +37,6 @@ nohup java -DSTOP.KEY=secret -jar start.jar >solr.out 2>solr.err </dev/null &
 cd $cwd
 
 echo Creating Hive Table: $HIVETABLE
-
-sudo -u hdfs hadoop fs -mkdir -p /user/guest/hdpappstudio/+$HBASETABLE
-
 sudo -u hive echo $DDL | hive
 
 echo Deploying Storm topology

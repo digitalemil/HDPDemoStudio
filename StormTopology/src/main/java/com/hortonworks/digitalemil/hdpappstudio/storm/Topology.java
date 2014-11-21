@@ -18,6 +18,7 @@ import backtype.storm.LocalCluster;
 import backtype.storm.StormSubmitter;
 import backtype.storm.topology.TopologyBuilder;
 import backtype.storm.tuple.Fields;
+import backtype.storm.tuple.Tuple;
 
 import org.apache.storm.hdfs.bolt.HdfsBolt;
 import org.apache.storm.hdfs.bolt.format.DefaultFileNameFormat;
@@ -34,7 +35,8 @@ public class Topology {
 	public static final String KAFKA_SPOUT_ID = "kafka-spout";
 	public static final String INDEXSOLR_BOLT_ID = "solr-bolt";
 	public static final String HBASE_BOLT_ID = "hbase-bolt";
-	public static final String HDFS_BOLT_ID = "hdfs-bolt";
+	public static final String HDFS_BOLT_ID = "hive-hdfs-bolt";
+	public static final String RAWHDFS_BOLT_ID = "raw-hdfs-bolt";
 	
 	public static final String TUPLETRANSFORMER_BOLT_ID = "tupletransformer-bolt";
 	
@@ -105,7 +107,7 @@ public class Topology {
 		FileRotationPolicy rotationPolicy = new FileSizeRotationPolicy(5.0f, Units.MB);
 
 		// Use default, Storm-generated file names
-		FileNameFormat fileNameFormat = new DefaultFileNameFormat().withPath("/user/guest/hdpappstudio/"+hivetable);
+		FileNameFormat fileNameFormat = new DefaultFileNameFormat().withPath("/user/guest/hdpappstudio/hive/"+hivetable);
 
 		// Instantiate the HdfsBolt
 		HdfsBolt hdfsbolt = new HdfsBolt()
@@ -114,12 +116,25 @@ public class Topology {
 		         .withRecordFormat(format)
 		         .withRotationPolicy(rotationPolicy)
 		         .withSyncPolicy(syncPolicy);
+		
+		
+		format = new com.hortonworks.digitalemil.hdpappstudio.storm.RecordFormat();
+		fileNameFormat = new DefaultFileNameFormat().withPath("/user/guest/hdpappstudio/raw/"+hivetable);
+		HdfsBolt rawBolt=
+				new HdfsBolt()
+        .withFsUrl("hdfs://sandbox.hortonworks.com:8020")
+        .withFileNameFormat(fileNameFormat)
+        .withRecordFormat(format)
+        .withRotationPolicy(rotationPolicy)
+        .withSyncPolicy(syncPolicy);
+		
 
 		TopologyBuilder builder = new TopologyBuilder();		
 		
 		builder.setSpout(KAFKA_SPOUT_ID, kafkaSpout);
 			
 		builder.setBolt(TUPLETRANSFORMER_BOLT_ID, tt).shuffleGrouping(KAFKA_SPOUT_ID);
+		builder.setBolt(RAWHDFS_BOLT_ID, rawBolt).shuffleGrouping(KAFKA_SPOUT_ID);
 		builder.setBolt(HDFS_BOLT_ID, hdfsbolt).shuffleGrouping(TUPLETRANSFORMER_BOLT_ID);
 		builder.setBolt(INDEXSOLR_BOLT_ID, index).shuffleGrouping(TUPLETRANSFORMER_BOLT_ID);
 		builder.setBolt(HBASE_BOLT_ID, hbolt).shuffleGrouping(TUPLETRANSFORMER_BOLT_ID);

@@ -101,7 +101,7 @@ public class Setup {
 			i++;
 		} while (true);
 		fields = fields + "\"";
-		ddl= ddl+ ") ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' STORED AS TEXTFILE LOCATION '/user/guest/hdpappstudio/" +hivetable+"';\"";
+		ddl= ddl+ ") ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' STORED AS TEXTFILE LOCATION '/user/guest/hdpappstudio/hive/" +hivetable+"';\"";
 		
 		try {
 			br = new BufferedReader(new InputStreamReader(props.getClass()

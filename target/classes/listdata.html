@@ -54,11 +54,10 @@
 		function execQuery(q) {
 			if(FORSOLR) {
 				var q= document.getElementById("query").value;
-				var r= document.getElementById("refresh").checked;
-				location.href="search?q=" + q + "&refresh=" + r;
+				location.href="search?q=" + q + "&refresh=false";
 			}
 			else {
-				location.href="hbase?refresh=checked";
+				location.href="hbase?refresh=false";
 			}
 		}
 	</script>
