@@ -1,4 +1,6 @@
+com/hortonworks/digitalemil/hdpappstudio/web/AppCreator.class
 com/hortonworks/digitalemil/hdpappstudio/Setup.class
 com/hortonworks/digitalemil/hdpappstudio/web/Location.class
-com/hortonworks/digitalemil/hdpappstudio/web/AppStudioDataListener.class
 com/hortonworks/digitalemil/hdpappstudio/web/AppStudioDataSearcher.class
+com/hortonworks/digitalemil/hdpappstudio/web/AppStudioDataListener.class
+com/hortonworks/digitalemil/hdpappstudio/web/UploadServlet.class

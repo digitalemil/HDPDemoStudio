@@ -16,9 +16,12 @@
 -->
 <view>
   <name>HDPAppStudio</name>
+  <description>Easy and Fast Prototyping</description>
   <label>HDPAppStudio</label>
-  <version>0.0.1</version>
+  <version>0.1.8</version>
   <instance>
     <name>INSTANCE</name>
   </instance>
+  <icon64>icon64.png</icon64>
+  <icon>icon32.png</icon>
 </view>

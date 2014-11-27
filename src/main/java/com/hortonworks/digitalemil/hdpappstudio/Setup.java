@@ -38,11 +38,25 @@ public class Setup {
 		String currentDir = System.getProperty("user.dir");
 
 		Runtime.getRuntime().exec("mkdir -p " + path + "jar/WEB-INF").waitFor();
+		try {
+			System.out.println("cuurent dir: "+currentDir+" "+"cp -fr com WEB-INF META-INF listdata.html map.html icon32.png icon64.png " + currentDir
+					+ "/" + path + "jar");
+			Runtime.getRuntime().exec(
+					"cp -fr com WEB-INF META-INF  listdata.html map.html icon32.png icon64.png  " + currentDir
+							+ "/" + path + "jar").waitFor();
+			Runtime.getRuntime().exec(
+					"rm -f " + currentDir
+							+ "/" + path + "jar/WEB-INF/web.xml").waitFor();
+			
+			
+		} catch (Exception e) {
+
+		}
 		Runtime.getRuntime()
-				.exec("/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar xvf ../../../target/HDPAppStudio-0.1.1-distribution.jar",
+				.exec("/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar xvf ../../../target/HDPAppStudio-0.1.8-distribution.jar",
 						new String[0],
 						new File(currentDir + "/" + path + "jar")).waitFor();
-
+		
 		BufferedReader br;
 		BufferedWriter bw;
 
@@ -64,6 +78,33 @@ public class Setup {
 		String pivotfield = props.getProperty("pivotfield");
 		String fields = "\"id location ";
 
+		String war = props.getProperty("createWAR");
+		boolean createWAR = false;
+
+		if ("true".equals(war)) {
+			createWAR = true;
+			Runtime.getRuntime()
+					.exec("mkdir -p " + path + "war/WEB-INF/classes/com")
+					.waitFor();
+			try {
+				System.out.println("cuurent dir: "+currentDir+" "+"cp -fr com WEB-INF META-INF listdata.html map.html icon32.png icon64.png " + currentDir
+						+ "/" + path + "war");
+				Runtime.getRuntime().exec(
+						"cp -fr com WEB-INF META-INF  listdata.html map.html icon32.png icon64.png " + currentDir
+								+ "/" + path + "jar").waitFor();
+			} catch (Exception e) {
+
+			}
+			Runtime.getRuntime()
+					.exec("/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar xvf ../../../target/HDPAppStudio-0.1.8-distribution.jar",
+							new String[0],
+							new File(currentDir + "/" + path + "war"))
+					.waitFor();
+			Runtime.getRuntime()
+					.exec("mv " + path + "war/com " + path
+							+ "war/WEB-INF/classes/").waitFor();
+		}
+
 		if (topic == null) {
 			topic = "default";
 		}
@@ -82,7 +123,8 @@ public class Setup {
 		if (pivotfield == null) {
 			pivotfield = "";
 		}
-		String ddl = "\"Create External Table " + hivetable + " (id String, location String, ";
+		String ddl = "\"Create External Table " + hivetable
+				+ " (id String, location String, ";
 
 		int i = 5;
 		do {
@@ -94,15 +136,17 @@ public class Setup {
 				type = "String";
 			if ("long".equals(type))
 				type = "BigInt";
-			if(i> 5)
-				ddl= ddl+", ";
+			if (i > 5)
+				ddl = ddl + ", ";
 			ddl = ddl + name + " " + type;
 			fields = fields + name + " ";
 			i++;
 		} while (true);
 		fields = fields + "\"";
-		ddl= ddl+ ") ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' STORED AS TEXTFILE LOCATION '/user/guest/hdpappstudio/hive/" +hivetable+"';\"";
-		
+		ddl = ddl
+				+ ") ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' STORED AS TEXTFILE LOCATION '/user/guest/hdpappstudio/hive/"
+				+ hivetable + "';\"";
+
 		try {
 			br = new BufferedReader(new InputStreamReader(props.getClass()
 					.getResourceAsStream("/view.xml")));
@@ -142,7 +186,7 @@ public class Setup {
 							type = "string";
 						if (others == null)
 							others = OTHERS;
-
+						System.out.println("adding: " + name);
 						bw.write("<field name=\"" + name + "\" type=\"" + type
 								+ "\" " + others + "/>\n");
 						i++;
@@ -171,7 +215,7 @@ public class Setup {
 
 		try {
 			br = new BufferedReader(new InputStreamReader(props.getClass()
-					.getResourceAsStream("/web.xml")));
+					.getResourceAsStream("/srcweb.xml")));
 			bw = new BufferedWriter(
 					new FileWriter(path + "jar/WEB-INF/web.xml"));
 
@@ -199,7 +243,7 @@ public class Setup {
 
 		try {
 			br = new BufferedReader(new InputStreamReader(props.getClass()
-					.getResourceAsStream("/index.html")));
+					.getResourceAsStream("/srcindex.html")));
 			bw = new BufferedWriter(new FileWriter(path + "jar/index.html"));
 
 			while ((line = br.readLine()) != null) {
@@ -390,6 +434,28 @@ public class Setup {
 			bw.close();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+		if (createWAR) {
+			Runtime.getRuntime().exec("cp " + path + "jar/* " + path + "war/")
+					.waitFor();
+			Runtime.getRuntime()
+					.exec("cp " + path + "jar/index.html " + path
+							+ "war/index.html").waitFor();
+			Runtime.getRuntime()
+					.exec("cp " + path + "jar/WEB-INF/web.xml " + path
+							+ "war/WEB-INF/web.xml").waitFor();
+			Runtime.getRuntime()
+					.exec("cp " + path + "jar/bg.jpg " + path + "war/bg.jpg")
+					.waitFor();
+
+			System.out.println("Creating WAR: "
+					+ "/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar cf "
+					+ path + appname + ".war -C " + currentDir + "/" + path
+					+ "war/ .");
+			Runtime.getRuntime()
+					.exec("/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar cf "
+							+ path + appname + ".war -C " + currentDir + "/"
+							+ path + "war/ .").waitFor();
 		}
 
 		System.out.println("Please find your app in " + path);

@@ -16,6 +16,10 @@
 			<directory>src/main/webapp/WEB-INF</directory>
 			<outputDirectory>WEB-INF</outputDirectory>
 		</fileSet>
+		<fileSet>
+			<directory>StormTopology/target/</directory>
+			<outputDirectory>StormTopology/target/</outputDirectory>
+		</fileSet>
 	</fileSets>
 	<dependencySets>
 

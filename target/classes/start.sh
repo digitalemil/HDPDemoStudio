@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export HDPAPPSTUDIO_HOME=/root/HDPAppStudio
-
 export FIELDS=id location
 export APPNAME=hdp
 export SOLRCORE=hdp
@@ -21,8 +19,14 @@ ambari-agent restart
 echo Creating HBase Table: $HBASETABLE
 sudo -u hbase echo create \'$HBASETABLE\',\'all\' | hbase shell
 
+
+echo Stopping Kafka
+/opt/kafka/bin/kafka-server-stop.sh
+
+sleep 2 
+
 echo Starting Kafka
-nohup /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties &
+nohup /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties >/opt/kafka/kafka.out 2>/opt/kafka/kafka.err </dev/null &
 sleep 10
 
 echo Creating Kafka Topic: $TOPIC
@@ -32,6 +36,9 @@ cwd=$(pwd)
 cd /opt/solr/solr/hdp
 echo Stoping Solr
 java -DSTOP.KEY=secret -DSTOP.PORT=8983 -jar start.jar --stop
+
+sleep 5
+
 echo Starting Solr
 nohup java -DSTOP.KEY=secret -jar start.jar >solr.out 2>solr.err </dev/null &
 cd $cwd
@@ -40,7 +47,8 @@ echo Creating Hive Table: $HIVETABLE
 sudo -u hive echo $DDL | hive
 
 echo Deploying Storm topology
-storm jar $HDPAPPSTUDIO_HOME/StormTopology/target/HDPAppStudioStormTopology-0.1.1-distribution.jar com.hortonworks.digitalemil.hdpappstudio.storm.Topology $APPNAME 127.0.0.1:2181 http://127.0.0.1:8983/solr/$SOLRCORE/update/json?commit=true $HBASETABLE all $TOPIC $HIVETABLE $FIELDS
+cwd=$(pwd)
+storm jar $cwd/StormTopology/target/HDPAppStudioStormTopology-*-distribution.jar com.hortonworks.digitalemil.hdpappstudio.storm.Topology $APPNAME 127.0.0.1:2181 http://127.0.0.1:8983/solr/$SOLRCORE/update/json?commit=true $HBASETABLE all $TOPIC $HIVETABLE $FIELDS
 
 echo Execute 
 echo tail -f /var/log/ambari-server/ambari-server.log

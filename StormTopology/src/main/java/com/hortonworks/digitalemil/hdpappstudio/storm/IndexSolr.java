@@ -77,11 +77,11 @@ public class IndexSolr extends BaseRichBolt {
 			return false;
 		}
 		try {
-			if(connection.getResponseCode()!= 200) {
+			if (connection.getResponseCode() != 200) {
 				connection.disconnect();
 				return false;
 			}
-				
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			return false;
@@ -89,7 +89,6 @@ public class IndexSolr extends BaseRichBolt {
 		connection.disconnect();
 		return true;
 	}
-	
 
 	public void execute(Tuple tuple) {
 		JSONObject json= new JSONObject();
@@ -97,7 +96,7 @@ public class IndexSolr extends BaseRichBolt {
 		for(int i= 0; i< tuple.size(); i++) {
 			json.put(tuple.getFields().get(i), tuple.getString(i));
 		}
-		
+			
 		System.out.println("SolrIndexer: "+json.toString());
 		if(post(SOLRURL, "["+json.toString()+"]")) {
 			collector.ack(tuple);
@@ -117,7 +116,7 @@ public class IndexSolr extends BaseRichBolt {
 
 	public void prepare(Map config, TopologyContext context,
 			OutputCollector collector) {
-		    this.collector = collector;
+		this.collector = collector;
 		// nothing to prepare
 	}
 
