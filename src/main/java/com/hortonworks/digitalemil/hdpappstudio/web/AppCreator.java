@@ -84,6 +84,20 @@ public class AppCreator extends HttpServlet {
 		args[1] = "samples/" + appname + ".properties";
 
 		try {
+			Process proc= Runtime.getRuntime().exec("cp /tmp/bg.jpg apps/"+appname+"/jar", new String[0], new File(HDPAPPSTUDIOHOME));
+			proc.waitFor();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			Process proc= Runtime.getRuntime().exec("cp /tmp/bg.jpg apps/"+appname+"/war", new String[0], new File(HDPAPPSTUDIOHOME));
+			proc.waitFor();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
 			
 			Process proc= Runtime.getRuntime().exec("java -cp "+HDPAPPSTUDIOHOME+" com.hortonworks.digitalemil.hdpappstudio.Setup "+appname+" "+"samples/" + appname
 					+ ".properties", new String[0], new File(HDPAPPSTUDIOHOME));
@@ -132,20 +146,7 @@ public class AppCreator extends HttpServlet {
 			e.printStackTrace();
 		}
 
-	try {
-		Process proc= Runtime.getRuntime().exec("cp /tmp/bg.jpg apps/"+appname+"/jar", new String[0], new File(HDPAPPSTUDIOHOME));
-		proc.waitFor();
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
-
-	try {
-		Process proc= Runtime.getRuntime().exec("cp /tmp/bg.jpg apps/"+appname+"/war", new String[0], new File(HDPAPPSTUDIOHOME));
-		proc.waitFor();
-	} catch (Exception e) {
-		e.printStackTrace();
-	}
-
+	
 		Writer writer = response.getWriter();
 		writer.write("Application on the way...\nPlease execute: start.sh");
 	}

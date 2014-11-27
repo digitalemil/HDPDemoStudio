@@ -16,6 +16,7 @@
 -->
 <view>
   <name>HDPAppStudio</name>
+  <description>Easy and Fast Prototyping</description>
   <label>HDPAppStudio</label>
   <version>0.1.8</version>
   <instance>
