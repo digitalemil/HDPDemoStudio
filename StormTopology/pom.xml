@@ -5,7 +5,7 @@
 
 	<groupId>com.hortonworks.digitalemil</groupId>
 	<artifactId>HDPAppStudioStormTopology</artifactId>
-	<version>0.1.8</version>
+	<version>2.2.0.0-2041</version>
 	<packaging>jar</packaging>
 	<!-- -->
 	<name>HDPAppStudio-StormTopology</name>
@@ -41,7 +41,6 @@
 			<url>http://repo.hortonworks.com/content/repositories/releases/</url>
 			<layout>default</layout>
 		</repository>
-
 	</repositories>
 
 	<dependencies>
@@ -51,42 +50,48 @@
 			<version>1.2</version>
 		</dependency>
 		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.7</version>
+		</dependency>
+
+		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20140107</version>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
+			<groupId>org.slf4j</groupId>
+			<artifactId>log4j-over-slf4j</artifactId>
+			<version>1.6.6</version>
 		</dependency>
 		<dependency>
-			<groupId>storm-hdfs</groupId>
+			<groupId>org.apache.storm</groupId>
 			<artifactId>storm-hdfs</artifactId>
-			<version>0.9.3</version>
+			<version>0.9.3.2.2.0.0-2041</version>
 			<scope>system</scope>
-			<systemPath>/usr/hdp/2.2.0.0-1084/storm/contrib/storm-hdfs/storm-hdfs-0.9.3.2.2.0.0-1084.jar</systemPath>
+			<systemPath>/usr/hdp/2.2.0.0-2041/storm/contrib/storm-hdfs/storm-hdfs-0.9.3.2.2.0.0-2041.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>storm-hbase</groupId>
+			<groupId>org.apache.storm</groupId>
 			<artifactId>storm-hbase</artifactId>
-			<version>0.9.3</version>
+			<version>0.9.3.2.2.0.0-2041</version>
 			<scope>system</scope>
-			<systemPath>/usr/hdp/2.2.0.0-1084/storm/contrib/storm-hbase/storm-hbase-0.9.3.2.2.0.0-1084.jar</systemPath>
+			<systemPath>/usr/hdp/2.2.0.0-2041/storm/contrib/storm-hbase/storm-hbase-0.9.3.2.2.0.0-2041.jar</systemPath>
 		</dependency>
 		<dependency>
-			<groupId>storm-kafka</groupId>
+			<groupId>org.apache.storm</groupId>
 			<artifactId>storm-kafka</artifactId>
-			<version>0.9.3</version>
+			<version>0.9.3.2.2.0.0-2041</version>
 			<scope>system</scope>
-			<systemPath>/usr/hdp/2.2.0.0-1084/storm/contrib/storm-kafka/storm-kafka-0.9.3.2.2.0.0-1084.jar</systemPath>
+			<systemPath>/usr/hdp/2.2.0.0-2041/storm/contrib/storm-kafka/storm-kafka-0.9.3.2.2.0.0-2041.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.storm</groupId>
 			<artifactId>storm-core</artifactId>
-			<version>0.9.3</version>
+			<version>0.9.3.2.2.0.0-2041</version>
 			<scope>system</scope>
-			<systemPath>/usr/hdp/2.2.0.0-1084/storm/lib/storm-core-0.9.3.2.2.0.0-1084.jar</systemPath>
+			<systemPath>/usr/hdp/2.2.0.0-2041/storm/lib/storm-core-0.9.3.2.2.0.0-2041.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
@@ -101,30 +106,30 @@
 		<dependency>
 			<groupId>org.apache.hbase</groupId>
 			<artifactId>hbase-client</artifactId>
-			<version>0.98.4</version>
+			<version>0.98.4.2.2.0.0-2041-hadoop2</version>
 			<scope>system</scope>
-			<systemPath>/usr/hdp/2.2.0.0-1084/hbase/lib/hbase-client.jar</systemPath>
+			<systemPath>/usr/hdp/current/hbase-client/lib/hbase-client.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hbase</groupId>
 			<artifactId>hbase-common</artifactId>
-			<version>0.98.4</version>
+			<version>0.98.4.2.2.0.0-2041-hadoop2</version>
 			<scope>system</scope>
-			<systemPath>/usr/hdp/2.2.0.0-1084/hbase/lib/hbase-common.jar</systemPath>
+			<systemPath>/usr/hdp/current/hbase-client/lib/hbase-common.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hbase</groupId>
 			<artifactId>hbase-protocol</artifactId>
-			<version>0.98.4</version>
+			<version>0.98.4.2.2.0.0-2041-hadoop2</version>
 			<scope>system</scope>
-			<systemPath>/usr/hdp/2.2.0.0-1084/hbase/lib/hbase-protocol.jar</systemPath>
+			<systemPath>/usr/hdp/current/hbase-client/lib/hbase-protocol.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hdfs-client</artifactId>
-			<version>2.5.2</version>
+			<version>2.6.0.2.2.0.0-2041</version>
 			<scope>system</scope>
-			<systemPath>/usr/hdp/2.2.0.0-1084/hadoop/client/hadoop-hdfs.jar</systemPath>
+			<systemPath>/usr/hdp/current/hadoop-hdfs-client/hadoop-hdfs-2.6.0.2.2.0.0-2041.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.google.protobuf</groupId>
@@ -133,17 +138,17 @@
 		</dependency>
 		<dependency>
 			<groupId>org.htrace</groupId>
-			<artifactId>htrace</artifactId>
+			<artifactId>htrace-core</artifactId>
 			<version>3.0.4</version>
 			<scope>system</scope>
-			<systemPath>/usr/hdp/2.2.0.0-1084/hbase/lib/htrace-core-3.0.4.jar</systemPath>
+			<systemPath>/usr/hdp/current/hbase-client/lib/htrace-core-3.0.4.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>org.cloudera.htrace</groupId>
-			<artifactId>htrace</artifactId>
+			<artifactId>htrace-core</artifactId>
 			<version>2.04</version>
 			<scope>system</scope>
-			<systemPath>/usr/hdp/2.2.0.0-1084/hbase/lib/htrace-core-2.04.jar</systemPath>
+			<systemPath>/usr/hdp/current/hbase-client/lib/htrace-core-2.04.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>io.netty</groupId>

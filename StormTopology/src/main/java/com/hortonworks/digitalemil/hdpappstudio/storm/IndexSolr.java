@@ -77,6 +77,7 @@ public class IndexSolr extends BaseRichBolt {
 			return false;
 		}
 		try {
+			System.out.println("ResponseCode: "+connection.getResponseCode());
 			if (connection.getResponseCode() != 200) {
 				connection.disconnect();
 				return false;

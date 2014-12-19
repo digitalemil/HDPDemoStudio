@@ -76,7 +76,6 @@ public class AppStudioDataSearcher extends HttpServlet {
 		boolean hbase = false, map = true;
 
 		Writer writer = response.getWriter();
-
 		if (request.getRequestURI().contains("hbaseLocations")) {
 			locations = queryLocationsViaHBase();
 			hbase = true;
@@ -104,7 +103,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 				}
 			}
 		}
-
+	
 		if (map) {
 			try {
 				BufferedReader br = new BufferedReader(new InputStreamReader(

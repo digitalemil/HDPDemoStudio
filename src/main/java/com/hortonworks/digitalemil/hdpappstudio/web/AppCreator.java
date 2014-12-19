@@ -1,7 +1,6 @@
 package com.hortonworks.digitalemil.hdpappstudio.web;
 
 import com.hortonworks.digitalemil.hdpappstudio.Setup;
-import com.sun.tools.classfile.Opcode.Set;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -25,7 +24,7 @@ import org.json.JSONObject;
  */
 public class AppCreator extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	public static String HDPAPPSTUDIOHOME= "/var/lib/ambari-server/resources/views/work/HDPAppStudio{0.1.8}";
+	public static String HDPAPPSTUDIOHOME= "/var/lib/ambari-server/resources/views/work/HDPAppStudio{2.2.0}";
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
@@ -62,8 +61,7 @@ public class AppCreator extends HttpServlet {
 
 		System.out.println("Properties received: " + props);
 
-		props.append("# Do not modify the following lines until you know what you're doing (I don't ;-)\nname_0=_version_\nname_1=_root_\nname_2=location\n\nname_3=text\nname_4=id\ntype_0=long\ntype_1=string\ntype_2=location\ntype_3=text_general\ntype_4=string\nother_0=indexed=\"true\" stored=\"true\"\nother_1=indexed=\"true\" stored=\"false\"\nother_2=indexed=\"true\" stored=\"true\" multiValued=\"false\"\nother_3=indexed=\"true\" stored=\"false\" multiValued=\"true\"\nother_4=indexed=\"true\" stored=\"true\" required=\"true\" multiValued=\"false\"");
-
+		props.append("\nname_0=_version_\nname_1=_root_\nname_2=location\nname_3=text\nname_4=event_timestamp\nname_5=id\ntype_0=long\ntype_1=string\ntype_2=location\ntype_3=text_general\ntype_4=date\ntype_5=string\nother_0=indexed=\"true\" stored=\"true\"\nother_1=indexed=\"true\" stored=\"false\"\nother_2=indexed=\"true\" stored=\"true\" multiValued=\"false\"\nother_3=indexed=\"true\" stored=\"false\" multiValued=\"true\"\nother_4=indexed=\"true\" stored=\"true\" default=\"NOW\" multiValued=\"false\"\nother_5=indexed=\"true\" stored=\"true\" required=\"true\" multiValued=\"false\"");
 		Properties p = new Properties();
 		p.load(new StringReader(props.toString()));
 
@@ -83,23 +81,24 @@ public class AppCreator extends HttpServlet {
 		args[0] = appname;
 		args[1] = "samples/" + appname + ".properties";
 
+	/*	
 		try {
-			Process proc= Runtime.getRuntime().exec("cp /tmp/bg.jpg apps/"+appname+"/jar", new String[0], new File(HDPAPPSTUDIOHOME));
+			Process proc= Runtime.getRuntime().exec("cp /tmp/bg.jpg bg.jpg", new String[0], new File(HDPAPPSTUDIOHOME+"/apps/"+appname+"/jar"));
 			proc.waitFor();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		try {
-			Process proc= Runtime.getRuntime().exec("cp /tmp/bg.jpg apps/"+appname+"/war", new String[0], new File(HDPAPPSTUDIOHOME));
+			Process proc= Runtime.getRuntime().exec("cp /tmp/bg.jpg bg.jpg", new String[0], new File(HDPAPPSTUDIOHOME+"/apps/"+appname+"/war"));
 			proc.waitFor();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+*/
 		try {
 			
-			Process proc= Runtime.getRuntime().exec("java -cp "+HDPAPPSTUDIOHOME+" com.hortonworks.digitalemil.hdpappstudio.Setup "+appname+" "+"samples/" + appname
+			Process proc= Runtime.getRuntime().exec("java -cp "+HDPAPPSTUDIOHOME+":"+HDPAPPSTUDIOHOME+"/json-20140107.jar com.hortonworks.digitalemil.hdpappstudio.Setup "+appname+" "+"samples/" + appname
 					+ ".properties", new String[0], new File(HDPAPPSTUDIOHOME));
 			proc.waitFor();
 			BufferedReader stdInput = new BufferedReader(new 
@@ -121,6 +120,8 @@ public class AppCreator extends HttpServlet {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		
 
 	try {
 			

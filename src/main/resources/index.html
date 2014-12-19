@@ -20,6 +20,13 @@
 			<p></p>
 			Application Name:<input type="text" name="appname" id="appname" value="Your_App" size="80"></input>
 			<p>
+				<p>
+			<form action="app/upload" method="post"
+				enctype="multipart/form-data">
+				<input type="file" name="Image" size="50" /> <br /> <input
+					type="submit" value="Upload Image (jpg only)" />
+			</form>
+			<p>
 			<table id="table0" border="0">
 				<caption>
 					<b></b>
@@ -54,8 +61,8 @@
 					<td>Custom field</td>
 					<td><input type="text" name="fn1" id="fn1" size="60"
 						onfocus="del(1)" onblur="undel()" /></td>
-					<td><input type="checkbox" name="p1" id="p1" checked="checked"
-						onclick="pivot(1)"></input>Pivot</td>
+					<td><input type="checkbox" name="p1" id="p1" 
+						onclick="pivot(1)" checked="true"></input>Pivot</td>
 				</tr>
 				<tr>
 					<td></td>
@@ -67,12 +74,7 @@
 
 				</tr>
 			</table>
-			<p>
-			<form action="app/upload" method="post"
-				enctype="multipart/form-data">
-				<input type="file" name="Image" size="50" /> <br /> <input
-					type="submit" value="Upload Image (jpg only)" />
-			</form>
+		
 			<p>
 			<table id="table2" border="0">
 				<caption>
@@ -92,17 +94,17 @@
 				</tr>
 				<tr>
 					<td>HBase CF:</td>
-					<td><input type="text" name="cf" id="cf" size="60" value="all" disabled /></td>
+					<td><input type="text" name="cf" id="cf" size="60" value="all" /></td>
 				</tr>
 				<tr>
 					<td>hbase.rootdir:</td>
 					<td><input type="text" name="hbaseroot" id="hbaseroot"
-						size="60" value="hdfs://127.0.0.1:8020/apps/hbase/data/" disabled /></td>
+						size="60" value="hdfs://127.0.0.1:8020/apps/hbase/data/"  /></td>
 				</tr>
 				<tr>
 					<td>zookeeper.znode.parent:</td>
 					<td><input type="text" name="zparent" id="zparent" size="60"
-						value="/hbase-unsecure" disabled /></td>
+						value="/hbase-unsecure" /></td>
 				</tr>
 
 				<tr>
@@ -116,12 +118,12 @@
 				<tr>
 					<td>Solr URL</td>
 					<td><input type="text" name="solrurl" id="solrurl" size="60"
-						value="http://127.0.0.1/solr" disabled /></td>
+						value="http://127.0.0.1:8983/solr" /></td>
 				</tr>
 				<tr>
 					<td>Zookeeper(s)</td>
-					<td><input type="text" name="solrurl" id="zoo" size="60"
-						value="127.0.0.1:2181" disabled /></td>
+					<td><input type="text" name="zookeeper" id="zoo" size="60"
+						value="127.0.0.1:2181" /></td>
 				</tr>
 				<tr>
 					<td>Kafka Topic</td>
@@ -129,7 +131,7 @@
 				</tr>
 					<tr>
 					<td>Brokerlist</td>
-					<td><input type="text" name="broker" id="broker" size="60" value="127.0.0.1:9092" disabled /></td>
+					<td><input type="text" name="broker" id="broker" size="60" value="sandbox:6667" /></td>
 				</tr>
 				<tr>
 					<td>Create WAR file</td>
@@ -137,7 +139,7 @@
 				</tr>
 				<tr>
 					<td></td>
-					<td></td>
+					<td>Press Button when ready. Be patient, it will take a while 'til the app is ready.</td>
 					<td align="right"><input type="button" value="Create App"
 						id="submit" onclick="doSubmit()" /></td>
 				</tr>
@@ -211,10 +213,15 @@
 				if(id== null)
 					continue;
 				p++;
-				if (n == i)
-					id.checked = "checked";
+				
+				if (n == i) {
+					if(id.checked!=true)
+						id.checked=false;
+					else
+						id.checked = true;
+				}
 				else
-					id.checked = "";
+					id.checked = false;
 			}
 		}
 
@@ -252,7 +259,7 @@
 				var id= document.getElementById("field"+i);
 				if(id== null) 
 					continue;
-				props+= "name_"+(5+field)+"="+document.getElementById("fn"+i).value+"\n";
+				props+= "name_"+(6+field)+"="+document.getElementById("fn"+i).value+"\n";
 				field++;
 				if(document.getElementById("p"+i).checked) {
 					pivot= document.getElementById("fn"+i).value;
@@ -262,14 +269,14 @@
 			props+= "hbasetable="+document.getElementById("hbase").value+"\n";
 			props+= "hbasecf="+document.getElementById("cf").value+"\n";
 			props+= "hbase.rootdir="+document.getElementById("hbaseroot").value+"\n";
-			props+= "zookeeper.znode.parent="+document.getElementById("zparent").value+"\n";
+			props+= "zparent="+document.getElementById("zparent").value+"\n";
 			props+= "hivetable="+document.getElementById("hive").value+"\n";
 			props+= "solrcore="+document.getElementById("solr").value+"\n";
 			props+= "solrurl="+document.getElementById("solrurl").value+"\n";
 			props+= "zookeeper="+document.getElementById("zoo").value+"\n";
 			props+= "topic="+document.getElementById("kafka").value+"\n";
-			props+= "brokerList="+document.getElementById("broker").value+"\n";
-			props+= "bgimg=samples/hdp.jpg"+"\n";
+			props+= "broker="+document.getElementById("broker").value+"\n";
+			props+= "bgimg=/tmp/bg.jpg"+"\n";
 			
 			if(document.getElementById("war").checked) {
 				props+= "createWAR=true\n";				

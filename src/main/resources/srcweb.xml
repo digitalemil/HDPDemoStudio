@@ -11,7 +11,7 @@
 		<servlet-class>com.hortonworks.digitalemil.hdpappstudio.web.AppStudioDataListener</servlet-class>
 		<init-param>
 			<param-name>brokerList</param-name>
-			<param-value>127.0.0.1:9092</param-value>
+			<param-value>BROKERLIST</param-value>
 		</init-param>
 		<init-param>
 			<param-name>acks</param-name>
@@ -45,7 +45,7 @@
 		</init-param>
 		<init-param>
 			<param-name>hbasecolumnfamily</param-name>
-			<param-value>all</param-value>
+			<param-value>HBASECF</param-value>
 		</init-param>
 		<init-param>
 			<param-name>solrurl</param-name>
@@ -79,6 +79,40 @@
 	<servlet-mapping>
 		<servlet-name>AppStudioDataSearcher</servlet-name>
 		<url-pattern>/data/hbaseData</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<description></description>
+		<display-name>HortonsGym</display-name>
+		<servlet-name>HortonsGym</servlet-name>
+		<servlet-class>com.hortonworks.digitalemil.hortonsgym.HortonsGym</servlet-class>
+		<init-param>
+			<param-name>brokerList</param-name>
+			<param-value>BROKERLIST</param-value>
+		</init-param>
+		<init-param>
+			<param-name>acks</param-name>
+			<param-value>1</param-value>
+		</init-param>
+		<init-param>
+			<param-name>partitioner</param-name>
+			<param-value>kafka.producer.DefaultPartitioner</param-value>
+		</init-param>
+		<init-param>
+			<param-name>serializer</param-name>
+			<param-value>kafka.serializer.StringEncoder</param-value>
+		</init-param>
+		<init-param>
+			<param-name>topic</param-name>
+			<param-value>TOPIC</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>HortonsGym</servlet-name>
+		<url-pattern>/sessions/running</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>HortonsGym</servlet-name>
+		<url-pattern>/hr/sessions/running</url-pattern>
 	</servlet-mapping>
 
 </web-app>

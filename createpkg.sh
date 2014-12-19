@@ -2,7 +2,7 @@
 
 mkdir dist
 cd target
-tar -cvf ../dist/HDPAppStudio-bin-0.1.8.tar *jar 
+tar -cvf ../dist/HDPAppStudio-bin-2.2.0.0-2041.tar *jar 
 cd ../lib
-tar --append --file=../dist/HDPAppStudio-bin-0.1.8.tar kafka_2.9.2-0.8.1.1.tar install.sh start.sh
+tar --append --file=../dist/HDPAppStudio-bin-2.2.0.0-2041.tar install.sh start.sh json-20140107.jar apache-ant-1.9.4-bin.tar
 cd ..

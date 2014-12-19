@@ -12,8 +12,6 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.*;
-import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
 
 public class TupleTransformer extends BaseRichBolt {
 	OutputCollector col;
@@ -31,6 +29,10 @@ public class TupleTransformer extends BaseRichBolt {
 		}
 		return false;
 	}
+	
+	public String transform(String in) {
+		return in;
+	}
 
 	public void transformTuple(Tuple tuple) {
 		// Extract the data from Kafka and construct JSON doc
@@ -39,7 +41,9 @@ public class TupleTransformer extends BaseRichBolt {
 		System.out.println("Tuple Key: " + fields.get(0));
 		System.out.println("Tuple Value: " + data);
 
-		JSONObject json = new JSONObject(new JSONTokener(data));
+		JSONObject json = transform(new JSONObject(new JSONTokener(data)));
+		
+		
 		Values val = new Values();
 
 		String values[] = new String[definedKeys.length];
@@ -47,7 +51,7 @@ public class TupleTransformer extends BaseRichBolt {
 		for (int i = 0; i < definedKeys.length; i++) {
 			try {
 				values[i] = json.getString(definedKeys[i]);
-				val.add(i, values[i]);
+				val.add(i, transform(values[i]));
 				System.out.println("Key: " + definedKeys[i] + " value: "
 						+ values[i]);
 			} catch (JSONException ex) {
@@ -58,6 +62,10 @@ public class TupleTransformer extends BaseRichBolt {
 		col.emit(tuple, val);
 		col.ack(tuple);
 		System.out.println("Emitting values: " + val);
+	}
+
+	protected JSONObject transform(JSONObject jsonObject) {
+		return jsonObject;
 	}
 
 	public TupleTransformer(String[] definedKeys) {

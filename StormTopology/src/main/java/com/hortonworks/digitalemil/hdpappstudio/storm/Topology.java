@@ -42,8 +42,8 @@ public class Topology {
 	
 	public static void main(String[] args) throws Exception {
 		
-		if(args.length< 7) {
-			System.err.println("Error Deploying Topology. Too few arguments. I needed:\n0. Topology Name\n1. ZooKeeper Hosts  e.g. 127.0.0.1\n2. Solr URL e.g. http://127.0.0.1:8983/solr/locations/update/json?commit=true\n3. HBaseTablename\n4. HBaseColumnFamily\n5. Kafka Topic\n6. field0\n...fieldN");
+		if(args.length< 9) {
+			System.err.println("Error Deploying Topology. Too few arguments. I needed:\n0. Topology Name\n1. ZooKeeper Hosts  e.g. 127.0.0.1\n2. Solr URL e.g. http://127.0.0.1:8983/solr/locations/update/json?commit=true\n3. HBaseTablename\n4. HBaseColumnFamily\n5. Kafka Topic\n6. HiveTable\n.7. HBaseRootdir\n8. Zookeeper.Znode.Parent\nfield0\n...fieldN");
 		}
 		String tname= args[0];
 		BrokerHosts hosts = new ZkHosts(args[1]);
@@ -52,18 +52,17 @@ public class Topology {
 		System.out.println("Kafka Topic: "+kafkaTopic);
 		
 		SpoutConfig spoutConfig = new SpoutConfig(hosts, kafkaTopic, "/kafkastorm","src");
-	//	spoutConfig.forceFromStart= true;
 		spoutConfig.useStartOffsetTimeIfOffsetOutOfRange= true;
 		spoutConfig.startOffsetTime= System.currentTimeMillis();
 	
 		KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
 		IndexSolr index= new IndexSolr(args[2]);
 		
-		int l= args.length- 7;
+		int l= args.length- 9;
 		String [] keys= new String[l];
 		
 		for(int i=0; i< l; i++) {
-			keys[i]= args[i+7];
+			keys[i]= args[i+9];
 			System.out.print("Field: "+keys[i]+" ");
 		}
 		System.out.println();
@@ -76,6 +75,8 @@ public class Topology {
 		String hbasetable= args[3];
 		String columnfamily= args[4];
 		String hivetable= args[6];
+		String hbaserootdir= args[7];
+		String zookeeperznodeparent= args[8];
 		
 		System.out.println("HBase Table: "+hbasetable);
 		System.out.println("HBase CF: "+columnfamily);
@@ -84,8 +85,8 @@ public class Topology {
 		Config stormconfig = new Config();
 
         Map<String, Object> hbConf = new HashMap<String, Object>();
-        hbConf.put("hbase.rootdir", "hdfs://sandbox:8020/apps/hbase/data/");
-        hbConf.put("zookeeper.znode.parent", "/hbase-unsecure");
+        hbConf.put("hbase.rootdir", hbaserootdir);
+        hbConf.put("zookeeper.znode.parent", zookeeperznodeparent);
         stormconfig.put("hbase.conf", hbConf);
         
 		
@@ -97,6 +98,7 @@ public class Topology {
 		HBaseBolt hbolt = new HBaseBolt(hbasetable, mapper).withConfigKey("hbase.conf");
 		
 		TupleTransformer tt= new TupleTransformer(keys);
+		//TupleTransformer tt= new StoreAwareTransformer(keys);
 		
 		RecordFormat format = new DelimitedRecordFormat().withFields(new Fields(fields)).withFieldDelimiter("|");
 
