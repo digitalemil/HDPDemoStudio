@@ -27,11 +27,12 @@ public class DataLoader {
 			n= names.length;
 		}
 		
-		Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
 			
 		while(true) {
 			for(int i= 0; i< n; i++) {
-			        String time= cal.get(Calendar.YEAR)+"-"+(new Integer(cal.get(Calendar.MONTH))+1)+"-"+cal.get(Calendar.DAY_OF_MONTH)+"T"+cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE)+":"+cal.get(Calendar.SECOND)+"."+(""+(new Integer(cal.get(Calendar.MILLISECOND))/1000.0f)).substring(2)+"Z";
+				Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+				
+				String time= cal.get(Calendar.YEAR)+"-"+(new Integer(cal.get(Calendar.MONTH))+1)+"-"+cal.get(Calendar.DAY_OF_MONTH)+"T"+cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE)+":"+cal.get(Calendar.SECOND)+"."+(""+(new Integer(cal.get(Calendar.MILLISECOND))/1000.0f)).substring(2)+"Z";
 			        String bpm= ""+(int)(hrs[i]- 10+ Math.random()*20);
 			        String json = "{'id':'" + System.currentTimeMillis() + "', 'location':'" + locations[i] + "', 'event_timestamp':'" + time + "', 'deviceid':'" + devices[i] + "', 'user':'" + names[i] + "', 'heartrate':'" + bpm + "'}";
 			        post(json);
@@ -46,7 +47,7 @@ public class DataLoader {
         String url = "http://" + server + "/data/publish";
 
         try {
-
+        	System.out.println("Posting: "+json);
             //Connect
             HttpURLConnection httpcon = (HttpURLConnection) ((new URL(url).openConnection()));
             httpcon.setDoOutput(true);

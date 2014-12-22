@@ -4,38 +4,32 @@ HDPAppStudio
 Making HDP Demos easy
 
 
-Start Ambari
-/root/start_ambari.sh
+Now supporting HDP 2.2.0-2041 (2.2 Preview sandbox does not work!)
 
-Check that all services are running esp. HBase & Storm!
+Default mode is binary delivery now. This means HDPAppStudio is an Ambari View on it's own. 
+Having said that property-files are still ok. In fact the Ambari view takes your input and creates a property-file from them.
 
-
-Either execute:
-sh install.sh
-
-or execute the following steps manually
-
-Install maven on sandbox:
-wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo
-yum install -y apache-maven
-
-Install kafka:
-sh ./install-kafka.sh
-
-Build HDPAppStudio:
+To build HDP AppStudio run the following commands on a 2.2 Sandbox or cluster
 mvn clean compile assembly:single
-
-Build Storm Topology
 cd StormTopology
 mvn clean compile assembly:single
 cd ..
+./createpkg.sh
 
-unalias cp
+This will produce a tar-ball under dist.
 
-Create app with: 
-java -cp target/classes com.hortonworks.digitalemil.hdpappstudio.Setup YourAppname samples/your.properties
+Copy the tar-ball dist/HDPAppStudio-bin-2.2.0.0-2041.tar on the a fresh Sandbox
+and 
+tar xf HDPAppStudio-bin-2.2.0.0-2041.tar
+./install.sh
+
+Afterwards find your HDPAppStudio View in Ambari and create your application there. 
+ 
+Alternatively you start a fresh sandbox, logon and do:
+git clone https://github.com/digitalemil/HDPAppStudio.git
+cd HDPAppStudio
+sh ./install.sh
+and follow the output
 
 
 
-git repo:
-https://github.com/digitalemil/HDPAppStudio.git

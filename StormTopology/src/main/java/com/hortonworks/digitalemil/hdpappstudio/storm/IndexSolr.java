@@ -102,7 +102,7 @@ public class IndexSolr extends BaseRichBolt {
 		String url= SOLRURL;
 		
 		if(n%100 == 99) {
-			url.replace("false", "true");
+			url= url.replace("false", "true");
 		}
 		System.out.println("SolrIndexer: "+json.toString());
 		if(post(url, "["+json.toString()+"]")) {
