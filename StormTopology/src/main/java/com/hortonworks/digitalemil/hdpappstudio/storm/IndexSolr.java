@@ -21,7 +21,8 @@ import backtype.storm.tuple.Tuple;
 
 public class IndexSolr extends BaseRichBolt {
 	private static final long serialVersionUID = 1L;
-
+	private static int n= 0;
+	
 	private String SOLRURL = "solrURL";
 
 	private OutputCollector collector;
@@ -97,9 +98,14 @@ public class IndexSolr extends BaseRichBolt {
 		for(int i= 0; i< tuple.size(); i++) {
 			json.put(tuple.getFields().get(i), tuple.getString(i));
 		}
-			
+		n++;
+		String url= SOLRURL;
+		
+		if(n%100 == 99) {
+			url.replace("false", "true");
+		}
 		System.out.println("SolrIndexer: "+json.toString());
-		if(post(SOLRURL, "["+json.toString()+"]")) {
+		if(post(url, "["+json.toString()+"]")) {
 			collector.ack(tuple);
 		}
 		else {
