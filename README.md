@@ -10,7 +10,8 @@ Default mode is binary delivery now. This means HDPAppStudio is an Ambari View o
 Having said that property-files are still ok. In fact the Ambari view takes your input and creates a property-file from them.
 
 To build HDP AppStudio run the following commands on a 2.2 Sandbox or cluster:
-```$ mvn clean compile assembly:single
+```
+$ mvn clean compile assembly:single
 $ cd StormTopology
 $ mvn clean compile assembly:single
 $ cd ..
@@ -27,7 +28,8 @@ and run:
 Afterwards find your HDPAppStudio View in Ambari and create your application there. 
  
 Alternatively you start a fresh sandbox, logon and do:
-```$ git clone https://github.com/digitalemil/HDPAppStudio.git
+```
+$ git clone https://github.com/digitalemil/HDPAppStudio.git
 $ cd HDPAppStudio
 $ sh ./install.sh
 ```
