@@ -243,6 +243,8 @@ public class Setup {
 			buildWAR(appname, path);
 		}
 
+		createDataGeneratorScript(path, fields);
+		
 		System.out.println("Please find your app in " + path);
 		System.out.println("Start it: sh ./" + path + "start.sh");
 	}
@@ -633,6 +635,25 @@ public class Setup {
 		}
 	}
 
+	private static void createDataGeneratorScript(String path, String fields) {
+		try {
+			br = new BufferedReader(new InputStreamReader(new Setup()
+					.getClass().getResourceAsStream("/createdata.sh")));
+			bw = new BufferedWriter(new FileWriter(path + "createdata.sh"));
+
+			while ((line = br.readLine()) != null) {
+				if (line.contains("export FIELDS")) {
+					line = "export FIELDS=" + fields;
+				}
+				bw.write(line + "\n");
+			}
+			br.close();
+			bw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	private static void createStartScript(String appname, String path,
 			String hbasetable, String solrcore, String solrurl, String topic,
 			String brokerlist, String fields, String ddl, String hivetable) {

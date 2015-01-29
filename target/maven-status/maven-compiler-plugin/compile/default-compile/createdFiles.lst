@@ -1,6 +1,10 @@
 com/hortonworks/digitalemil/hdpappstudio/web/AppCreator.class
 com/hortonworks/digitalemil/hdpappstudio/Setup.class
+com/hortonworks/digitalemil/hdpappstudio/GenerateData.class
+com/hortonworks/digitalemil/hortonsgym/DataLoader.class
 com/hortonworks/digitalemil/hdpappstudio/web/Location.class
 com/hortonworks/digitalemil/hdpappstudio/web/AppStudioDataSearcher.class
+com/hortonworks/digitalemil/hortonsgym/HeartRateMeasurement.class
 com/hortonworks/digitalemil/hdpappstudio/web/AppStudioDataListener.class
 com/hortonworks/digitalemil/hdpappstudio/web/UploadServlet.class
+com/hortonworks/digitalemil/hortonsgym/HortonsGym.class

@@ -47,7 +47,7 @@ public class DataLoader {
         String url = "http://" + server + "/data/publish";
 
         try {
-        	System.out.println("Posting: "+json);
+        	System.out.println("Posting: "+json+ " to: "+url+" Content-Type: application/json");
             //Connect
             HttpURLConnection httpcon = (HttpURLConnection) ((new URL(url).openConnection()));
             httpcon.setDoOutput(true);
