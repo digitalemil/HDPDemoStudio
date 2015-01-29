@@ -1,0 +1,8 @@
+dist
+target
+dist
+.classpath
+.idea
+.project
+.settings
+HDPAppStudio.iml
