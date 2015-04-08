@@ -15,9 +15,9 @@
    limitations under the License.
 -->
 <view>
-  <name>HDPAppStudio</name>
+  <name>HDPDemoStudio</name>
   <description>Easy and Fast Prototyping</description>
-  <label>HDPAppStudio</label>
+  <label>HDPDemoStudio</label>
   <version>2.2.0</version>
   <instance>
     <name>INSTANCE</name>

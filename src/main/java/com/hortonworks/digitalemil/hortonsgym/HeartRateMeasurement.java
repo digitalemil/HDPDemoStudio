@@ -23,6 +23,10 @@ public class HeartRateMeasurement {
 	public String toString() {
 		if(System.currentTimeMillis()> created+ 30*1000)
 			return "";
-		return "{\"calories\":\"\",\" color\":-13726889,\"hr\":\""+hr+"\",\"name\":\""+user+"\",\"recovery\":\"\",\"zone\":\""+deviceid+"\"}";
+		String color= HortonsGym.colors.get(user);
+		if(color== null)
+			color= "0x80FFFFFF";
+		return "{\"calories\":\"\",\"color\":\""+color+"\",\"hr\":\""+hr+"\",\"name\":\""+user+"\",\"recovery\":\"\",\"zone\":\""+deviceid+"\"}";
+
 	}
 }

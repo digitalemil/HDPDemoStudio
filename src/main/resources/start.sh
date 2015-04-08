@@ -35,7 +35,13 @@ sudo -u hbase echo create \'$HBASETABLE\',\'all\' | hbase shell
 #sleep 10
 
 echo Creating Kafka Topic: $TOPIC
-/usr/hdp/2.2.0.0-2041/kafka/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 2 --topic $TOPIC
+/usr/hdp/2.2.4.0-2633/kafka/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 2 --topic $TOPIC
+echo Create Horton's Gym topic: 
+/usr/hdp/2.2.4.0-2633/kafka/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 2 --topic color
+
+echo Create Horton's Gym zk path
+zkCli.sh create /hortonsgym ''
+zkCli.sh create /hortonsgym/pmml ''
 
 cd banana
 : ${JAVA_HOME:=/usr/lib/jvm/java-1.7.0-openjdk.x86_64}
@@ -61,7 +67,7 @@ sudo -u hive echo $DDL | hive
 
 echo Deploying Storm topology
 cwd=$(pwd)
-storm jar $cwd/StormTopology/target/HDPAppStudioStormTopology-*-distribution.jar com.hortonworks.digitalemil.hdpappstudio.storm.Topology $APPNAME $ZOOKEEPER $SOLRURL$SOLRCORE/update/json?commit=true $HBASETABLE $HBASECF $TOPIC $HIVETABLE $HBASEROOTDIR $ZOOKEEPERZNODEPARENT $FIELDS
+storm jar $cwd/StormTopology/target/HDPDemoStudioStormTopology-*-distribution.jar com.hortonworks.digitalemil.hdpappstudio.storm.Topology $APPNAME $ZOOKEEPER $SOLRURL$SOLRCORE/update/json?commit=true $HBASETABLE $HBASECF $TOPIC $HIVETABLE $HBASEROOTDIR $ZOOKEEPERZNODEPARENT $FIELDS
 
 echo Execute 
 echo tail -f /var/log/ambari-server/ambari-server.log

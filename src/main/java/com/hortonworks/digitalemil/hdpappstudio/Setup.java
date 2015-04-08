@@ -37,7 +37,7 @@ public class Setup {
 	static private BufferedReader br;
 	static private BufferedWriter bw;
 	static private String line;
-	public final static String HDP_VERSION= "2.2.0.0-2041";
+	public final static String HDP_VERSION= "2.2.4.0-2633";
 
 	public final static int STARTFIELDS = 6;
 
@@ -99,7 +99,7 @@ public class Setup {
 
 		}
 		Runtime.getRuntime()
-				.exec("/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar xvf ../../../target/HDPAppStudio-"+HDP_VERSION+"-distribution.jar",
+				.exec("/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar xvf ../../../target/HDPDemoStudio-"+HDP_VERSION+"-distribution.jar",
 						new String[0],
 						new File(currentDir + "/" + path + "jar")).waitFor();
 
@@ -131,7 +131,7 @@ public class Setup {
 
 		String hivetable = props.getProperty("hivetable");
 		if (hivetable == null) {
-			hivetable = "HDPAppStudio";
+			hivetable = "HDPDemoStudio";
 		}
 
 		String pivotfield = props.getProperty("pivotfield");
@@ -174,7 +174,7 @@ public class Setup {
 
 			}
 			Runtime.getRuntime()
-					.exec("/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar xvf ../../../target/HDPAppStudio-"+HDP_VERSION+"-distribution.jar",
+					.exec("/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar xvf ../../../target/HDPDemoStudio-"+HDP_VERSION+"-distribution.jar",
 							new String[0],
 							new File(currentDir + "/" + path + "war"))
 					.waitFor();
@@ -205,7 +205,7 @@ public class Setup {
 		} while (true);
 		fields = fields + "\"";
 		ddl = ddl
-				+ ") ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' STORED AS TEXTFILE LOCATION '/user/guest/hdpappstudio/hive/"
+				+ ") ROW FORMAT DELIMITED FIELDS TERMINATED BY '|' STORED AS TEXTFILE LOCATION '/user/guest/hdpdemostudio/hive/"
 				+ hivetable + "';\"";
 
 		createView(appname, path);
@@ -706,10 +706,10 @@ public class Setup {
 			bw = new BufferedWriter(new FileWriter(path + "jar/view.xml"));
 
 			while ((line = br.readLine()) != null) {
-				if (line.contains("<name>HDPAppStudio</name>")) {
+				if (line.contains("<name>HDPDemoStudio</name>")) {
 					line = "<name>" + appname + "</name>";
 				}
-				if (line.contains("<label>HDPAppStudio</label>")) {
+				if (line.contains("<label>HDPDemoStudio</label>")) {
 					line = "<label>" + appname + "</label>";
 				}
 				bw.write(line + "\n");
