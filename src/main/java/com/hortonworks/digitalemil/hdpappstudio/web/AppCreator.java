@@ -24,7 +24,7 @@ import org.json.JSONObject;
  */
 public class AppCreator extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	public static String HDPAPPSTUDIOHOME= "/var/lib/ambari-server/resources/views/work/HDPAppStudio{2.2.0}";
+	public static String HDPAPPSTUDIOHOME= "/var/lib/ambari-server/resources/views/work/HDPAppStudio{2.2.4}";
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */

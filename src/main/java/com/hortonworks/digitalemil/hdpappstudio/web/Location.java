@@ -6,6 +6,7 @@ public class Location {
 	private boolean pivot= false;
 	
 	public String toString() {
+		System.out.println();
 		return "{ ;latitude;:"+latitude+", ;longitude;:"+longitude+", ;n;:"+n+"}";
 	}
 	
@@ -19,6 +20,7 @@ public class Location {
 	public Location(boolean p) {
 		super();
 		pivot= p;
+		n= 0;
 	}
 
 	@Override

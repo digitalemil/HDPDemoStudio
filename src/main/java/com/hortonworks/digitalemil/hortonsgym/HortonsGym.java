@@ -211,7 +211,7 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 			run(1);
 		}
 		ConsumerIterator<byte[], byte[]> it = stream.iterator();
-		System.out.println("Listing for Kafka Messages on Topic: " + readtopic);
+		System.out.println("Listening for Kafka Messages on Topic: " + readtopic);
 		while (it.hasNext()) {
 			// stream.
 			String msg = new String(it.next().message());

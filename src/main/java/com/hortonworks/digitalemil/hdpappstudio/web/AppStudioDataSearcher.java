@@ -38,7 +38,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	protected String hbasetable, hbasecolumnfamily, solrurl, pivotfield;
 	protected boolean pivot = false;
-	double max = 0;
+	double max = 1.0;
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -74,7 +74,8 @@ public class AppStudioDataSearcher extends HttpServlet {
 			HttpServletResponse response) throws ServletException, IOException {
 		String locations = "", query = request.getQueryString();
 		boolean hbase = false, map = true;
-
+		System.out.println("GET: "+request);
+		
 		Writer writer = response.getWriter();
 		if (request.getRequestURI().contains("hbaseLocations")) {
 			locations = queryLocationsViaHBase();
@@ -200,17 +201,22 @@ public class AppStudioDataSearcher extends HttpServlet {
 	}
 
 	public String queryLocationsViaHBase() throws IOException {
+		HashMap<Location, Double> locations = new HashMap<Location, Double>();
+		System.out.println("queryLocationsViaHBase");
+		
+		try {
 		Configuration config = (Configuration) HBaseConfiguration.create();
 		config.set("zookeeper.znode.parent", "/hbase-unsecure");
-		config.set("hbase.rootdir", "hdfs://sandbox:8020/apps/hbase/data/");
+		config.set("hbase.rootdir", "hdfs://127.0.0.1:8020/apps/hbase/data/");
+		System.out.println("config: "+config);
+		
 		HTable table = new HTable(config, hbasetable);
 		Scan scan = new Scan();
 		scan.setCaching(1024);
 		scan.setBatch(1024);
 		scan.addFamily(Bytes.toBytes(hbasecolumnfamily));
 
-		HashMap<Location, Double> locations = new HashMap<Location, Double>();
-
+		
 		ResultScanner scanner = table.getScanner(scan);
 		for (Result result = scanner.next(); (result != null); result = scanner
 				.next()) {
@@ -247,6 +253,10 @@ public class AppStudioDataSearcher extends HttpServlet {
 			}
 		}
 		table.close();
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
 		return getLocationsAsJSONString(locations);
 
 	}
@@ -255,7 +265,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 		StringBuffer ret = new StringBuffer();
 		Configuration config = (Configuration) HBaseConfiguration.create();
 		config.set("zookeeper.znode.parent", "/hbase-unsecure");
-		config.set("hbase.rootdir", "hdfs://sandbox:8020/apps/hbase/data/");
+		config.set("hbase.rootdir", "hdfs://127.0.0.1:8020/apps/hbase/data/");
 		HTable table = new HTable(config, hbasetable);
 		Scan scan = new Scan();
 		scan.setCaching(1024);
@@ -331,7 +341,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 			Location loc = new Location(pivot?true:false);
 			SolrDocument resultDoc = iter.next();
 			String location = (String) resultDoc.getFieldValue("location");
-			System.out.println("location: " + location);
+			System.out.println("location: " + location+" "+pivotfield);
 			loc.latitude = location.substring(0, location.indexOf(","));
 			loc.longitude = location.substring(location.indexOf(",") + 1);
 
@@ -339,9 +349,9 @@ public class AppStudioDataSearcher extends HttpServlet {
 				double p = 0;
 				try {
 					p = Double.parseDouble((String) resultDoc
-							.getFieldValue(pivotfield));
+							.getFieldValue(pivotfield).toString());
 				} catch (Exception e) {
-
+						e.printStackTrace();
 				}
 				if (max < p)
 					max = p;
