@@ -1,10 +1,10 @@
-HDPAppStudio
+HDPDemoStudio
 ============
 
 Making HDP Demos easy
 
 
-Now supporting HDP 2.2.0-2041 (2.2 Preview sandbox does not work!)
+Now supporting HDP 2.2.4.0-2633
 
 Default mode is binary delivery now. This means HDPAppStudio is an Ambari View on it's own. 
 Having said that property-files are still ok. In fact the Ambari view takes your input and creates a property-file from them.
@@ -20,17 +20,17 @@ $ ./createpkg.sh
 
 This will produce a tar-ball under ``dist/``.
 
-Copy the tar-ball dist/HDPAppStudio-bin-2.2.0.0-2041.tar on the a fresh Sandbox
+Copy the tar-ball dist/HDPDemoStudio-bin-*.tar on the a fresh Sandbox
 and run: 
-    $ tar xf HDPAppStudio-bin-2.2.0.0-2041.tar
+    $ tar xf HDPAppStudio-bin-*.tar
     $ ./install.sh
 
 Afterwards find your HDPAppStudio View in Ambari and create your application there. 
  
 Alternatively you start a fresh sandbox, logon and do:
 ```
-$ git clone https://github.com/digitalemil/HDPAppStudio.git
-$ cd HDPAppStudio
+$ git clone https://github.com/digitalemil/HDPDemoStudio.git
+$ cd HDPDemoStudio
 $ sh ./install.sh
 ```
 and follow the output
