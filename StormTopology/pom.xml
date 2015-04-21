@@ -11,6 +11,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<hdp.version>2.2.4.0-2633</hdp.version>
+		<hdp.local.version>2.2.4.2-2</hdp.local.version>	
 	</properties>
 
 	<developers>
@@ -86,7 +87,7 @@
 			<version>0.9.3.${hdp.version}</version>
 			<scope>system</scope>
 			<systemPath>
-/usr/hdp/${hdp.version}/storm/contrib/storm-hdfs/storm-hdfs-0.9.3.${hdp.version}.jar
+/usr/hdp/${hdp.local.version}/storm/contrib/storm-hdfs/storm-hdfs-0.9.3.${hdp.local.version}.jar
 </systemPath>
 		</dependency>
 		<dependency>
@@ -95,7 +96,7 @@
 			<version>0.9.3.${hdp.version}</version>
 			<scope>system</scope>
 			<systemPath>
-/usr/hdp/${hdp.version}/storm/contrib/storm-hbase/storm-hbase-0.9.3.${hdp.version}.jar
+/usr/hdp/${hdp.local.version}/storm/contrib/storm-hbase/storm-hbase-0.9.3.${hdp.local.version}.jar
 </systemPath>
 		</dependency>
 		<dependency>
@@ -104,7 +105,7 @@
 			<version>0.9.3.${hdp.version}</version>
 			<scope>system</scope>
 			<systemPath>
-/usr/hdp/${hdp.version}/storm/contrib/storm-kafka/storm-kafka-0.9.3.${hdp.version}.jar
+/usr/hdp/${hdp.local.version}/storm/contrib/storm-kafka/storm-kafka-0.9.3.${hdp.local.version}.jar
 </systemPath>
 		</dependency>
 		<dependency>
@@ -113,7 +114,7 @@
 			<version>0.9.3.${hdp.version}</version>
 			<scope>system</scope>
 			<systemPath>
-/usr/hdp/${hdp.version}/storm/lib/storm-core-0.9.3.${hdp.version}.jar
+/usr/hdp/${hdp.local.version}/storm/lib/storm-core-0.9.3.${hdp.local.version}.jar
 </systemPath>
 		</dependency>
 		<dependency>
@@ -155,7 +156,7 @@
 			<version>2.6.0.${hdp.version}</version>
 			<scope>system</scope>
 			<systemPath>
-/usr/hdp/current/hadoop-hdfs-client/hadoop-hdfs-2.6.0.${hdp.version}.jar
+/usr/hdp/current/hadoop-hdfs-client/hadoop-hdfs-2.6.0.${hdp.local.version}.jar
 </systemPath>
 		</dependency>
 		<dependency>

@@ -11,7 +11,8 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<hdp.version>2.2.4.0-2633</hdp.version>
-	</properties>
+		<hdp.local.version>2.2.4.2-2</hdp.local.version>	
+			</properties>
 
 	<developers>
 		<developer>

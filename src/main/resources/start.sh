@@ -35,9 +35,9 @@ sudo -u hbase echo create \'$HBASETABLE\',\'all\' | hbase shell
 #sleep 10
 
 echo Creating Kafka Topic: $TOPIC
-/usr/hdp/2.2.4.0-2633/kafka/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 2 --topic $TOPIC
+/usr/hdp/2.2.4.2-2/kafka/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 2 --topic $TOPIC
 echo Create Horton's Gym topic: 
-/usr/hdp/2.2.4.0-2633/kafka/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 2 --topic color
+/usr/hdp/2.2.4.2-2/kafka/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 2 --topic color
 
 echo Create Horton's Gym zk path
 zkCli.sh create /hortonsgym ''

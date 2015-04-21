@@ -55,6 +55,32 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 		thread.start();
 		// TODO Auto-generated constructor stub
 	}
+	
+	private void handleSteps(HttpServletRequest request,
+			HttpServletResponse response) throws IOException {
+		BufferedReader reader = request.getReader();
+		StringBuffer json = new StringBuffer();
+		JSONObject jobj = null;
+
+		do {
+			String line = reader.readLine();
+			if (line == null)
+				break;
+			json.append(line + "\n");
+		} while (true);
+
+		try {
+			jobj = new JSONObject(json.toString());
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("Received JSON Activity (steps): " + jobj+" \n"+json);
+		if (consumer != null)
+			sendDataToKafka("steps", jobj.toString());
+	}
+	
+	
 
 	private static ConsumerConfig createConsumerConfig(String zookeeper,
 			String group) {
@@ -72,6 +98,10 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 			HttpServletResponse response) throws ServletException, IOException {
 		BufferedReader reader = request.getReader();
 
+		if(request.getRequestURI().contains("steps")) {
+			handleSteps(request, response);
+			return;
+		}
 		StringBuffer json = new StringBuffer();
 		JSONObject jobj = null;
 
@@ -145,6 +175,8 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 		if (consumer != null)
 			sendDataToKafka(topic, jobj.toString());
 	}
+
+	
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
