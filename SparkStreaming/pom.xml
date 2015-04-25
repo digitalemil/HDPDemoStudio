@@ -1,29 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.hortonworks.digitalemil</groupId>
-	<artifactId>HDPDemoStudio</artifactId>
-	<version>2.2.4.2-2</version>
-	<packaging>jar</packaging>
+	<artifactId>HDPDemoStudioSparkStreaming</artifactId>
+	<version>2.2.4.0-2633</version>
 
-	<name>HDP Demo Studio</name>
+	<name>HDPDemoStudio-SparkStreaming</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<hdp.version>2.2.4.2-2</hdp.version>
+		<hdp.version>2.2.4.0-2633</hdp.version>
+		<spark.version>1.2.1</spark.version>	
 	</properties>
-
-	<developers>
-		<developer>
-			<id>digitalemil</id>
-			<name>Emil A. Siemes</name>
-			<email>esiemes at hortonworks.com </email>
-		</developer>
-	</developers>
-
-	<pluginRepositories>
-	</pluginRepositories>
 
 	<repositories>
 		<repository>
@@ -34,7 +23,7 @@
 			</releases>
 			<snapshots>
 				<enabled>false</enabled>
-				<updatePolicy>always</updatePolicy>
+				<updatePolicy>never</updatePolicy>
 				<checksumPolicy>fail</checksumPolicy>
 			</snapshots>
 			<id>HDPReleases</id>
@@ -42,7 +31,6 @@
 			<url>http://repo.hortonworks.com/content/repositories/releases/</url>
 			<layout>default</layout>
 		</repository>
-
 		<repository>
 			<releases>
 				<enabled>true</enabled>
@@ -62,26 +50,18 @@
 	</repositories>
 
 	<dependencies>
-
 		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-common</artifactId>
-			<version>2.6.0.${hdp.version}</version>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-streaming_2.10</artifactId>
+			<version>${spark.version}.${hdp.version}</version>
+			<scope>provided</scope>
 		</dependency>
-
 		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-client</artifactId>
-			<version>2.6.0.${hdp.version}</version>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-streaming-kafka_2.10</artifactId>
+			<version>${spark.version}.${hdp.version}</version>
 		</dependency>
-
-		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-hdfs</artifactId>
-			<version>2.6.0.${hdp.version}</version>
-		</dependency>
-
-		<dependency>
+			<dependency>
 			<groupId>org.apache.hbase</groupId>
 			<artifactId>hbase-common</artifactId>
 			<version>0.98.4.${hdp.version}-hadoop2</version>
@@ -92,54 +72,12 @@
 			<artifactId>hbase-client</artifactId>
 			<version>0.98.4.${hdp.version}-hadoop2</version>
 		</dependency>
-
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.17</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.kafka</groupId>
-			<artifactId>kafka_2.10</artifactId>
-			<version>0.8.1</version>
-		</dependency>
-
-		<dependency>
-			<groupId>commons-fileupload</groupId>
-			<artifactId>commons-fileupload</artifactId>
-			<version>1.3.1</version>
-		</dependency>
-
+		
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20140107</version>
 		</dependency>
-
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>2.5</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>jstl</artifactId>
-			<version>1.2</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.solr</groupId>
-			<artifactId>solr-solrj</artifactId>
-			<version>4.10.0</version>
-		</dependency>
-
-
-
-
 	</dependencies>
 
 	<build>

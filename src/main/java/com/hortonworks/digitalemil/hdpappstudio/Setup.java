@@ -37,7 +37,7 @@ public class Setup {
 	static private BufferedReader br;
 	static private BufferedWriter bw;
 	static private String line;
-	public final static String HDP_VERSION= "2.2.4.0-2633";
+	public final static String HDP_VERSION= "2.2.4.2-2";
 
 	public final static int STARTFIELDS = 6;
 

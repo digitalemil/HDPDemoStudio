@@ -12,18 +12,39 @@
 				src="bg.jpg"> </img>
 		</div>
 		<div id="text">
-		<h2><center>Welcome!</center></center></h2></br>
-		<p>
-		<a href="data.html">Send data to the cluster</a></br><p></p>
-		<a id="search" href="data/search?q=*:*&refresh=true">Search data with Solr</a></br><p></p>
-		<a id="hbase" href="data/hbase?refresh=true">Retrieve data from HBase</a></br><p></p>
-		<a id="searchLocations" href="data/searchLocations?q=*:*&refresh=true">Search and visualize data with Solr</a></br><p></p>
-		<a id="hbaseLocations" href="data/hbaseLocations?refresh=true">Retrieve Locations from HBase</a></br><p></p>
-		<a id="banana" href="" onclick="window.open('http://127.0.0.1:8983/banana')">New: Analyze Data with Banana</a></br><p></p>
-	
-		</p>
+			<h2>
+				<center>Welcome!</center>
+				</center>
+			</h2>
+			</br>
+			<p>
+				<a href="data.html">Send data to the cluster</a></br>
+			<p></p>
+			<a id="search" href="data/search?q=*:*&refresh=true">Search data
+				with Solr</a></br>
+			<p></p>
+			<a id="hbase" href="data/hbase?refresh=true">Retrieve data from
+				HBase</a></br>
+			<p></p>
+			<a id="searchLocations"
+				href="data/searchLocations?q=*:*&refresh=true">Search and
+				visualize data with Solr</a></br>
+			<p></p>
+			<a id="hbaseLocations" href="data/hbaseLocations?refresh=true">Retrieve
+				Locations from HBase</a></br>
+			<p></p>
+			<a id="banana" href=""
+				onclick="window.open('http://127.0.0.1:8983/banana')">Analyze
+				Data with Banana</a></br>
+			<p></p>
+			<b>New: </b>Choose streaming tech:<select
+				onchange="streamingtech(this.value);">
+				<option value="0">Storm</option>
+				<option value="1">Spark Streaming</option>
+			</select>
+			</p>
 		</div>
-		
+
 	</div>
 	<script>
 		var latitude, longitude;
@@ -33,7 +54,7 @@
 		var sY = h / 768;
 		var bgh = (768 * window.innerWidth / 1024);
 		var json;
-		var showLocation= "MYMARKER";
+		var showLocation = "MYMARKER";
 
 		var bg = document.getElementById("bg");
 		bg.setAttribute("style",
@@ -44,9 +65,49 @@
 				+ "px; left:" + (((960 - 512 - 140) / 2) * sX) + "px; width: "
 				+ (384 * sX * 1.5) + "px; height: " + (128 * sY * 1.5) + "px;");
 
-		if(showLocation== false) {
-			document.getElementById("searchLocations").setAttribute("style", "display:none;");
-			document.getElementById("hbaseLocations").setAttribute("style", "display:none;");			
+		if (showLocation == false) {
+			document.getElementById("searchLocations").setAttribute("style",
+					"display:none;");
+			document.getElementById("hbaseLocations").setAttribute("style",
+					"display:none;");
+		}
+
+		streamingtech = function(t) {
+			if (window.XMLHttpRequest) {
+				try {
+					req = new XMLHttpRequest();
+				} catch (e) {
+					req = false;
+				}
+				// branch for IE/Windows ActiveX version
+			} else {
+				if (window.ActiveXObject) {
+					try {
+						req = new ActiveXObject("Msxml2.XMLHTTP");
+					} catch (e) {
+						try {
+							req = new ActiveXObject("Microsoft.XMLHTTP");
+						} catch (e) {
+							req = false;
+						}
+					}
+				}
+			}
+			if (req) {
+				req.onreadystatechange = techSent;
+				if(t== 0)
+					req.open("POST", "tech/storm", true);
+				else
+					req.open("POST", "tech/spark", true);
+				req.send("");
+				req.setRequestHeader("Content-type", "application/text");
+			} else {
+				alert("req== false");
+			}
+		};
+		
+		techSent= function(t) {
+			console.log("Tech sent: "+t);
 		}
 	</script>
 

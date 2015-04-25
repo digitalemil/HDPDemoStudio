@@ -15,6 +15,7 @@ export TOPIC=default
 export BROKERLIST=127.0.0.1:9092
 export HIVETABLE=hdp
 
+
 echo Starting...
 
 #echo Restarting Ambari-Server
@@ -43,6 +44,11 @@ echo Create Horton's Gym zk path
 zkCli.sh create /hortonsgym ''
 zkCli.sh create /hortonsgym/pmml ''
 
+echo Start Spark-Streaming
+SPARKTOPIC=$TOPIC-spark
+/usr/hdp/current/spark-client/bin/spark-submit --class com.hortonworks.digitalemil.hdpdemostudio.Spark --master yarn-cluster --num-executors 2 --driver-memory 512m --executor-memory 512m --executor-cores 1 SparkStreaming/target/HDPDemoStudioSparkStreaming-*-distribution.jar  $ZOOKEEPER $SPARKTOPIC $SPARKTOPIC 1 $SOLRURL $SOLRCORE $HBASETABLE $HBASECF >/tmp/spark.out 2>/tmp/spark.err &
+
+
 cd banana
 : ${JAVA_HOME:=/usr/lib/jvm/java-1.7.0-openjdk.x86_64}
 export JAVA_HOME
@@ -69,7 +75,5 @@ echo Deploying Storm topology
 cwd=$(pwd)
 storm jar $cwd/StormTopology/target/HDPDemoStudioStormTopology-*-distribution.jar com.hortonworks.digitalemil.hdpappstudio.storm.Topology $APPNAME $ZOOKEEPER $SOLRURL$SOLRCORE/update/json?commit=true $HBASETABLE $HBASECF $TOPIC $HIVETABLE $HBASEROOTDIR $ZOOKEEPERZNODEPARENT $FIELDS
 
-echo Execute 
-echo tail -f /var/log/ambari-server/ambari-server.log
-echo and wait until you see your Ambari View being deployed \(might take a couple of minutes\). Then go to Ambari Web: http://127.0.0.1:8080/#/main/views 
-
+echo IMPORTANT:
+echo Please restart Ambari for your view to become visible

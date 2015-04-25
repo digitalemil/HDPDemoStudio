@@ -24,7 +24,8 @@ public class AppStudioDataListener extends HttpServlet {
     public final static String DEFAULTQUEUENAME= "default";  
     private static Producer<String, String> producer;
     private static 	ProducerConfig config;
-    protected String topic= DEFAULTQUEUENAME;
+    protected String topic= DEFAULTQUEUENAME, origtopic= DEFAULTQUEUENAME;
+    ServletConfig servletcfg;
     
     @Override
     public void init(ServletConfig cfg) throws ServletException {
@@ -36,6 +37,7 @@ public class AppStudioDataListener extends HttpServlet {
 		String partitioner = cfg.getInitParameter("partitioner");
 		String acks = cfg.getInitParameter("acks");
 		topic= cfg.getInitParameter("topic");
+		origtopic= topic;
 		
 		props.put("metadata.broker.list", brokerList);
 		props.put("serializer.class", serializer);
@@ -64,6 +66,19 @@ public class AppStudioDataListener extends HttpServlet {
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		if(request.getRequestURI().contains("storm")) {
+			topic= origtopic;
+			System.out.println("Kafka Topic for Storm: "+topic);
+			return;
+		}
+		if(request.getRequestURI().contains("spark")) {
+			topic= origtopic+"-spark";
+			System.out.println("Kafka Topic for Spark: "+topic);
+			return;
+		}
+		
+		
 		BufferedReader reader = request.getReader();
 		
 		StringBuffer json= new StringBuffer();

@@ -34,6 +34,14 @@
 		<servlet-name>AppStudioDataListener</servlet-name>
 		<url-pattern>/data/publish</url-pattern>
 	</servlet-mapping>
+		<servlet-mapping>
+		<servlet-name>AppStudioDataListener</servlet-name>
+		<url-pattern>/tech/storm</url-pattern>
+	</servlet-mapping>
+		<servlet-mapping>
+		<servlet-name>AppStudioDataListener</servlet-name>
+		<url-pattern>/tech/spark</url-pattern>
+	</servlet-mapping>
 	<servlet>
 		<description></description>
 		<display-name>AppStudioDataSearcher</display-name>
