@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -43,6 +46,8 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 	private ConsumerConnector consumer;
 	private String readtopic = "color";
 	private ExecutorService executor;
+	public static Logger hrlogger;
+	public static Logger stepslogger;
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -50,12 +55,33 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 	public HortonsGym() {
 		super();
 		colors = new HashMap<String, String>();
+		hrlogger = Logger.getLogger("com.hortonworks.digitalemil.hortonsgym.heartrates");
+		stepslogger = Logger.getLogger("com.hortonworks.digitalemil.hortonsgym.steps");
+		
+		try {
+			Handler fileHandler = new FileHandler("logs/hrdata.out");
+			LogFormatter formatter = new LogFormatter();
+			fileHandler.setFormatter(formatter);
+			hrlogger.addHandler(fileHandler);
+
+			Handler stepsfileHandler = new FileHandler(
+					"logs/stepsfromhkdata.out");
+			stepsfileHandler.setFormatter(formatter);
+			stepslogger.addHandler(stepsfileHandler);
+
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		Thread thread = new Thread(this);
 		thread.start();
 		// TODO Auto-generated constructor stub
 	}
-	
+
 	private void handleSteps(HttpServletRequest request,
 			HttpServletResponse response) throws IOException {
 		BufferedReader reader = request.getReader();
@@ -69,18 +95,18 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 			json.append(line + "\n");
 		} while (true);
 
+		stepslogger.severe(json.toString());
 		try {
 			jobj = new JSONObject(json.toString());
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
-		
-		System.out.println("Received JSON Activity (steps): " + jobj+" \n"+json);
+
+		System.out.println("Received JSON Activity (steps): " + jobj + " \n"
+				+ json);
 		if (consumer != null)
 			sendDataToKafka("steps", jobj.toString());
 	}
-	
-	
 
 	private static ConsumerConfig createConsumerConfig(String zookeeper,
 			String group) {
@@ -98,7 +124,7 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 			HttpServletResponse response) throws ServletException, IOException {
 		BufferedReader reader = request.getReader();
 
-		if(request.getRequestURI().contains("steps")) {
+		if (request.getRequestURI().contains("steps")) {
 			handleSteps(request, response);
 			return;
 		}
@@ -112,24 +138,22 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 			json.append(line + "\n");
 		} while (true);
 
+		hrlogger.severe(json.toString());
 		if (request.getRequestURI().contains("upload")) {
 			try {
 				System.out.println("Received docs: " + json);
+				hrlogger.severe(json.toString());
 				Configuration configuration = new Configuration();
-				System.out.println("Config: " + configuration);
 				configuration.set("fs.default.name",
 						"hdfs://sandbox.hortonworks.com:8020");
-				System.out.println("Config1: " + configuration);
-
+				
 				configuration.set("fs.hdfs.impl",
 						org.apache.hadoop.hdfs.DistributedFileSystem.class
 								.getName());
-				System.out.println("Config2: " + configuration);
-
+			
 				configuration.set("fs.file.impl",
 						org.apache.hadoop.fs.LocalFileSystem.class.getName());
-				System.out.println("Config3: " + configuration);
-				System.out.println("Creating FS...");
+			
 				FileSystem hdfs = FileSystem.get(configuration);
 				System.out.println("FS: " + hdfs);
 				Path file = new Path(
@@ -143,6 +167,7 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 				BufferedWriter br = new BufferedWriter(new OutputStreamWriter(
 						os, "UTF-8"));
 				br.write(json.toString());
+				br.flush();
 				br.close();
 				hdfs.close();
 			} catch (Exception e) {
@@ -175,8 +200,6 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 		if (consumer != null)
 			sendDataToKafka(topic, jobj.toString());
 	}
-
-	
 
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
@@ -243,7 +266,8 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 			run(1);
 		}
 		ConsumerIterator<byte[], byte[]> it = stream.iterator();
-		System.out.println("Listening for Kafka Messages on Topic: " + readtopic);
+		System.out.println("Listening for Kafka Messages on Topic: "
+				+ readtopic);
 		while (it.hasNext()) {
 			// stream.
 			String msg = new String(it.next().message());

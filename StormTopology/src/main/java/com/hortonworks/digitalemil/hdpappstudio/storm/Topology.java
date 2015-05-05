@@ -109,7 +109,7 @@ public class Topology {
 		FileRotationPolicy rotationPolicy = new FileSizeRotationPolicy(5.0f, Units.MB);
 
 		// Use default, Storm-generated file names
-		FileNameFormat fileNameFormat = new DefaultFileNameFormat().withPath("/user/guest/hdpappstudio/hive/"+hivetable);
+		FileNameFormat fileNameFormat = new DefaultFileNameFormat().withPath("/user/guest/hdpdemostudio/hive/"+hivetable);
 
 		// Instantiate the HdfsBolt
 		HdfsBolt hdfsbolt = new HdfsBolt()
@@ -121,7 +121,7 @@ public class Topology {
 		
 		
 		format = new com.hortonworks.digitalemil.hdpappstudio.storm.RecordFormat();
-		fileNameFormat = new DefaultFileNameFormat().withPath("/user/guest/hdpappstudio/raw/"+hivetable);
+		fileNameFormat = new DefaultFileNameFormat().withPath("/user/guest/hdpdemostudio/raw/"+hivetable);
 		HdfsBolt rawBolt=
 				new HdfsBolt()
         .withFsUrl("hdfs://sandbox.hortonworks.com:8020")

@@ -20,6 +20,10 @@
 			<directory>StormTopology/target/</directory>
 			<outputDirectory>StormTopology/target/</outputDirectory>
 		</fileSet>
+		<fileSet>
+			<directory>SparkStreaming/target/</directory>
+			<outputDirectory>SparkStreaming/target/</outputDirectory>
+		</fileSet>
 	</fileSets>
 	<dependencySets>
 
