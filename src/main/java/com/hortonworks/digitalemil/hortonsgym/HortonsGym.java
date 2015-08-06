@@ -259,8 +259,16 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 		}
 
 		System.out.println("Received JSON: " + jobj);
-		if (consumer != null && !insafemode)
+		if (consumer != null && !insafemode) {
+		
+			if(jobj.has("user")) {
+				String v= jobj.getString("user");
+				jobj.remove("user");
+				jobj.put("username", v);
+			}
 			sendDataToKafka(topic, jobj.toString());
+			
+		}
 		else {
 			try {
 				colors.put(jobj.getString("user"),
@@ -338,15 +346,24 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 		ConsumerIterator<byte[], byte[]> it = stream.iterator();
 		System.out.println("Listening for Kafka Messages on Topic: "
 				+ readtopic);
-		while (it.hasNext()) {
+		boolean cont= true;
+		try {
+			cont= it.hasNext();
+		}
+		catch(IllegalStateException e) {
+			it.resetState();
+			cont= it.hasNext();
+		}
+		while (cont) {
 			// stream.
 			String msg = new String(it.next().message());
 			if (!msg.contains(":"))
 				continue;
 			String user = msg.substring(0, msg.indexOf(":"));
 			String color = msg.substring(msg.indexOf(":") + 1);
-			System.out.println("Color for user: " + user + " = " + color);
+			System.out.println("Color for user: " + user + " = " + color+" "+"{\"user\":\""+user+"\", \"color\":\""+color+"\"}\n");
 			colors.put(user, color);
+			cont= it.hasNext();
 		}
 		System.out.println("Shutting down Thread: " + threadNumber);
 	}
