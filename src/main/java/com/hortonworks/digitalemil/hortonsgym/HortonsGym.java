@@ -2,12 +2,15 @@ package com.hortonworks.digitalemil.hortonsgym;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -20,6 +23,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBException;
 
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.consumer.ConsumerConfig;
@@ -29,8 +33,18 @@ import kafka.consumer.KafkaStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.zookeeper.ZooKeeper;
+import org.dmg.pmml.FieldName;
+import org.dmg.pmml.IOUtil;
+import org.dmg.pmml.PMML;
+import org.jpmml.evaluator.FieldValue;
+import org.jpmml.evaluator.ModelEvaluator;
+import org.jpmml.evaluator.ModelEvaluatorFactory;
+import org.jpmml.evaluator.NodeClassificationMap;
+import org.jpmml.manager.PMMLManager;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.xml.sax.SAXException;
 
 import com.hortonworks.digitalemil.hdpappstudio.web.AppStudioDataListener;
 
@@ -48,6 +62,33 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 	private ExecutorService executor;
 	public static Logger hrlogger;
 	public static Logger stepslogger;
+	PMML pmml;
+	private static ModelEvaluator modelEvaluator;
+	private static String modelString = "";
+	ZooKeeper zookeeper;
+	
+	static private boolean insafemode = false;
+
+	Map<FieldName, FieldValue> arguments = new LinkedHashMap<FieldName, FieldValue>();
+
+	public static boolean isInSafeMode() {
+		return insafemode;
+	}
+
+	public static void setModelString(String s) {
+		modelString = s;
+		try {
+			createModelEvaluator(modelString);
+		} catch (SAXException e) {
+			e.printStackTrace();
+		} catch (JAXBException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static String getModelString() {
+		return modelString;
+	}
 
 	/**
 	 * @see HttpServlet#HttpServlet()
@@ -55,30 +96,42 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 	public HortonsGym() {
 		super();
 		colors = new HashMap<String, String>();
-		hrlogger = Logger.getLogger("com.hortonworks.digitalemil.hortonsgym.heartrates");
-		stepslogger = Logger.getLogger("com.hortonworks.digitalemil.hortonsgym.steps");
-		
-		try {
-			Handler fileHandler = new FileHandler("logs/hrdata.out");
-			LogFormatter formatter = new LogFormatter();
-			fileHandler.setFormatter(formatter);
-			hrlogger.addHandler(fileHandler);
+		hrlogger = Logger
+				.getLogger("com.hortonworks.digitalemil.hortonsgym.heartrates");
+		stepslogger = Logger
+				.getLogger("com.hortonworks.digitalemil.hortonsgym.steps");
 
-			Handler stepsfileHandler = new FileHandler(
-					"logs/stepsfromhkdata.out");
-			stepsfileHandler.setFormatter(formatter);
-			stepslogger.addHandler(stepsfileHandler);
+	
+		if (!insafemode) {
+			try {
+				Handler fileHandler = new FileHandler("logs/hrdata.out");
+				LogFormatter formatter = new LogFormatter();
+				fileHandler.setFormatter(formatter);
+				hrlogger.addHandler(fileHandler);
 
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+				Handler stepsfileHandler = new FileHandler(
+						"logs/stepsfromhkdata.out");
+				stepsfileHandler.setFormatter(formatter);
+				stepslogger.addHandler(stepsfileHandler);
+
+			} catch (SecurityException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Thread thread = new Thread(this);
+			thread.start();
+			
+			
 		}
+		
+		/*if (consumer == null) {
+			insafemode = true;
+			System.out.println("In savemode");
+		}*/
 
-		Thread thread = new Thread(this);
-		thread.start();
 		// TODO Auto-generated constructor stub
 	}
 
@@ -95,10 +148,13 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 			json.append(line + "\n");
 		} while (true);
 
-		stepslogger.severe(json.toString());
+		if(!insafemode)
+			stepslogger.severe(json.toString());
 		try {
 			jobj = new JSONObject(json.toString());
 		} catch (JSONException e) {
+			response.setStatus(500);
+
 			e.printStackTrace();
 		}
 
@@ -138,22 +194,25 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 			json.append(line + "\n");
 		} while (true);
 
-		hrlogger.severe(json.toString());
+		if(!insafemode)
+			hrlogger.severe(json.toString());
 		if (request.getRequestURI().contains("upload")) {
+			if (insafemode)
+				return;
 			try {
 				System.out.println("Received docs: " + json);
 				hrlogger.severe(json.toString());
 				Configuration configuration = new Configuration();
 				configuration.set("fs.default.name",
 						"hdfs://sandbox.hortonworks.com:8020");
-				
+
 				configuration.set("fs.hdfs.impl",
 						org.apache.hadoop.hdfs.DistributedFileSystem.class
 								.getName());
-			
+
 				configuration.set("fs.file.impl",
 						org.apache.hadoop.fs.LocalFileSystem.class.getName());
-			
+
 				FileSystem hdfs = FileSystem.get(configuration);
 				System.out.println("FS: " + hdfs);
 				Path file = new Path(
@@ -172,6 +231,7 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 				hdfs.close();
 			} catch (Exception e) {
 				System.out.println("Error uploading file: " + e);
+				response.setStatus(500);
 				e.printStackTrace();
 			}
 			return;
@@ -180,9 +240,11 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 		try {
 			jobj = new JSONObject(json.toString());
 		} catch (JSONException e) {
+			response.setStatus(500);
+
 			e.printStackTrace();
 		}
-		HeartRateMeasurement hrm = new HeartRateMeasurement(jobj);
+		HeartRateMeasurement hrm = new HeartRateMeasurement(jobj, colors);
 		System.out.println("HRM created: " + hrm + " key: "
 				+ jobj.getString("deviceid"));
 		last.put(jobj.getString("deviceid"), hrm);
@@ -197,8 +259,16 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 		}
 
 		System.out.println("Received JSON: " + jobj);
-		if (consumer != null)
+		if (consumer != null && !insafemode)
 			sendDataToKafka(topic, jobj.toString());
+		else {
+			try {
+				colors.put(jobj.getString("user"),
+						getColor(jobj.getDouble("heartrate")));
+			} catch (Exception e) {
+
+			}
+		}
 	}
 
 	/**
@@ -279,5 +349,41 @@ public class HortonsGym extends AppStudioDataListener implements Runnable {
 			colors.put(user, color);
 		}
 		System.out.println("Shutting down Thread: " + threadNumber);
+	}
+
+	// Needed to run without Hadoop
+	private static void createModelEvaluator(String modelString)
+			throws SAXException, JAXBException {
+
+		InputStream is = new ByteArrayInputStream(modelString.getBytes());
+
+		PMML pmml = IOUtil.unmarshal(is);
+
+		PMMLManager pmmlManager = new PMMLManager(pmml);
+
+		modelEvaluator = (ModelEvaluator) pmmlManager.getModelManager(null,
+				ModelEvaluatorFactory.getInstance());
+
+		System.out.println("New model created for: " + modelString);
+	}
+
+	public String getColor(Double hr) {
+		if (modelString == null || modelString.length() <= 0
+				|| modelEvaluator == null)
+			return "0x80FFFFFF";
+
+		List<FieldName> activeFields = modelEvaluator.getActiveFields();
+		for (FieldName activeField : activeFields) {
+			FieldValue activeValue = modelEvaluator.prepare(activeField, hr);
+			arguments.put(activeField, activeValue);
+		}
+
+		Map<FieldName, ?> results = modelEvaluator.evaluate(arguments);
+
+		FieldName targetName = modelEvaluator.getTargetField();
+		Object targetValue = results.get(targetName);
+
+		NodeClassificationMap nodeMap = (NodeClassificationMap) targetValue;
+		return nodeMap.getResult();
 	}
 }

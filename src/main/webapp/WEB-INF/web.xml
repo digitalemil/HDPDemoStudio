@@ -12,33 +12,13 @@
     <url-pattern>/app/create</url-pattern>
   </servlet-mapping>
   <servlet>
-    <description></description>
-    <display-name>UploadServlet</display-name>
-    <servlet-name>UploadServlet</servlet-name>
-    <servlet-class>com.hortonworks.digitalemil.hdpappstudio.web.UploadServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>UploadServlet</servlet-name>
-    <url-pattern>/app/upload</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <description></description>
-    <display-name>HortonsGym</display-name>
-    <servlet-name>HortonsGym</servlet-name>
-    <servlet-class>com.hortonworks.digitalemil.hdpappstudio.web.HortonsGym</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>HortonsGym</servlet-name>
-    <url-pattern>/HortonsGym</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <description></description>
-    <display-name>ModelUpdater</display-name>
-    <servlet-name>ModelUpdater</servlet-name>
-    <servlet-class>com.hortonworks.digitalemil.hortonsgym.ModelUpdater</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>ModelUpdater</servlet-name>
-    <url-pattern>/ModelUpdater</url-pattern>
-  </servlet-mapping>
+		<description></description>
+		<display-name>UploadServlet</display-name>
+		<servlet-name>UploadServlet</servlet-name>
+		<servlet-class>com.hortonworks.digitalemil.hdpappstudio.web.UploadServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UploadServlet</servlet-name>
+		<url-pattern>/app/upload</url-pattern>
+	</servlet-mapping>
 </web-app>

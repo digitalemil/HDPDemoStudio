@@ -18,12 +18,6 @@ export HIVETABLE=hdp
 
 echo Starting...
 
-#echo Restarting Ambari-Server
-#ambari-server restart
-
-#echo Restarting Ambari-Agent
-#ambari-agent restart
-
 echo Creating HBase Table: $HBASETABLE
 sudo -u hbase echo create \'$HBASETABLE\',\'all\' | hbase shell
 
@@ -36,40 +30,23 @@ sudo -u hbase echo create \'$HBASETABLE\',\'all\' | hbase shell
 #sleep 10
 
 echo Creating Kafka Topic: $TOPIC
-/usr/hdp/2.2.4.2-2/kafka/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 2 --topic $TOPIC
+/usr/hdp/current/kafka-broker/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 2 --topic $TOPIC
 echo Create Horton's Gym topic: 
-/usr/hdp/2.2.4.2-2/kafka/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 2 --topic color
+/usr/hdp/current/kafka-broker/bin/kafka-topics.sh --create --zookeeper $ZOOKEEPER --replication-factor 1 --partitions 2 --topic color
 
 echo Create Horton's Gym zk path
-zkCli.sh create /hortonsgym ''
-zkCli.sh create /hortonsgym/pmml ''
+/usr/hdp/current/zookeeper-client/bin/zkCli.sh create /hortonsgym ''
+/usr/hdp/current/zookeeper-client/bin/zkCli.sh create /hortonsgym/pmml ''
 
-echo Start Spark-Streaming
-SPARKTOPIC=$TOPIC-spark
-/usr/hdp/current/spark-client/bin/spark-submit --class com.hortonworks.digitalemil.hdpdemostudio.Spark --master yarn-cluster --num-executors 2 --driver-memory 512m --executor-memory 512m --executor-cores 1 SparkStreaming/target/HDPDemoStudioSparkStreaming-*-distribution.jar  $ZOOKEEPER $SPARKTOPIC $SPARKTOPIC 1 $SOLRURL $SOLRCORE $HBASETABLE $HBASECF >/tmp/spark.out 2>/tmp/spark.err &
-
-
-cd banana
-: ${JAVA_HOME:=/usr/lib/jvm/java-1.7.0-openjdk.x86_64}
-export JAVA_HOME
-
-../apache-ant-1.9.4/bin/ant
-cp build/banana-*.war /opt/solr/solr/hdp/webapps/banana.war
-cp jetty-contexts/banana-context.xml /opt/solr/solr/hdp/contexts
-cd ..
-
-cwd=$(pwd)
-cd /opt/solr/solr/hdp
-#echo Stoping Solr
-#java -DSTOP.KEY=secret -DSTOP.PORT=8983 -jar start.jar --stop
-#sleep 5
-
-echo Starting Solr
-nohup java -DSTOP.KEY=secret -jar start.jar >solr.out 2>solr.err </dev/null &
-cd $cwd
+#Starting Solr
 
 echo Creating Hive Table: $HIVETABLE
 sudo -u hive echo $DDL | hive
+
+echo Starting Spark-Streaming
+SPARKTOPIC=$TOPIC-spark
+# Remove the following "#" in case you want to stream via Spark. Make sure you adjusted the YARN memory settings before.
+#/usr/hdp/current/spark-client/bin/spark-submit --class com.hortonworks.digitalemil.hdpdemostudio.Spark --master yarn-cluster --num-executors 2 --driver-memory 512m --executor-memory 512m --executor-cores 1 SparkStreaming/target/HDPDemoStudioSparkStreaming-*-distribution.jar  $ZOOKEEPER $SPARKTOPIC $SPARKTOPIC 1 $SOLRURL $SOLRCORE $HBASETABLE $HBASECF >/tmp/spark.out 2>/tmp/spark.err &
 
 echo Deploying Storm topology
 cwd=$(pwd)

@@ -24,7 +24,7 @@ import org.json.JSONObject;
  */
 public class AppCreator extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	public static String HDPAPPSTUDIOHOME= "/var/lib/ambari-server/resources/views/work/HDPDemoStudio{2.2.4}";
+	public static String HDPAPPSTUDIOHOME= "/var/lib/ambari-server/resources/views/work/HDPDemoStudio{2.3.0}";
 	/**
 	 * @see HttpServlet#HttpServlet()
 	 */
@@ -69,6 +69,29 @@ public class AppCreator extends HttpServlet {
 		if (appname == null || appname.length() == 0)
 			appname = "yourapp";
 
+		String jdkhome= p.getProperty("jdkhome");
+		if (jdkhome == null || jdkhome.length() == 0) {
+			jdkhome = "/usr/lib/jvm/java-1.7.0-openjdk.x86_64";
+		}
+		p.remove("jdkhome");
+		
+		String solrhome= p.getProperty("solrhome");
+		if (solrhome == null || solrhome.length() == 0) {
+			solrhome = "/opt/lucidworks-hdpsearch/solr";
+		}
+		p.remove("solrhome");
+		
+		String solrurl= p.getProperty("solrurl");
+		if (solrurl == null || solrurl.length() == 0) {
+			solrurl="http://127.0.0.1:8983/solr";
+		}
+		
+		String namenode= p.getProperty("namenode");
+		if (namenode == null || namenode.length() == 0) {
+			namenode = "/opt/lucidworks-hdpsearch/solr";
+		}
+		p.remove("namenode");
+		
 		try {
 			Runtime.getRuntime().exec("mkdir samples", new String[0], new File(HDPAPPSTUDIOHOME)).waitFor();
 			p.save(new FileOutputStream(new File(HDPAPPSTUDIOHOME+"/samples/" + appname
@@ -97,9 +120,10 @@ public class AppCreator extends HttpServlet {
 		}
 */
 		try {
-			
+			System.out.println("Executing: "+"java -cp "+HDPAPPSTUDIOHOME+":"+HDPAPPSTUDIOHOME+"/json-20140107.jar com.hortonworks.digitalemil.hdpappstudio.Setup "+appname+" "+"samples/" + appname
+					+ ".properties "+jdkhome+" "+solrhome+" "+namenode+" ");
 			Process proc= Runtime.getRuntime().exec("java -cp "+HDPAPPSTUDIOHOME+":"+HDPAPPSTUDIOHOME+"/json-20140107.jar com.hortonworks.digitalemil.hdpappstudio.Setup "+appname+" "+"samples/" + appname
-					+ ".properties", new String[0], new File(HDPAPPSTUDIOHOME));
+					+ ".properties "+jdkhome+" "+solrurl+" "+solrhome+" "+namenode+" ", new String[0], new File(HDPAPPSTUDIOHOME));
 			proc.waitFor();
 			BufferedReader stdInput = new BufferedReader(new 
 				     InputStreamReader(proc.getInputStream()));
@@ -121,11 +145,16 @@ public class AppCreator extends HttpServlet {
 			e.printStackTrace();
 		}
 		
-		
+		try {
+			Thread.currentThread().sleep(10000);
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 	try {
 			
-			Process proc= Runtime.getRuntime().exec("sh apps/"+appname+"/start.sh", new String[0], new File(HDPAPPSTUDIOHOME));
+			Process proc= Runtime.getRuntime().exec("sh apps/"+appname+"/start.sh "+solrhome, new String[0], new File(HDPAPPSTUDIOHOME));
 			proc.waitFor();
 			BufferedReader stdInput = new BufferedReader(new 
 				     InputStreamReader(proc.getInputStream()));

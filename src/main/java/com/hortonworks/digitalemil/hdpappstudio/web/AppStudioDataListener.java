@@ -26,6 +26,7 @@ public class AppStudioDataListener extends HttpServlet {
     private static 	ProducerConfig config;
     protected String topic= DEFAULTQUEUENAME, origtopic= DEFAULTQUEUENAME;
     ServletConfig servletcfg;
+	
     
     @Override
     public void init(ServletConfig cfg) throws ServletException {
@@ -35,6 +36,7 @@ public class AppStudioDataListener extends HttpServlet {
         String brokerList = cfg.getInitParameter("brokerList");
 		String serializer = cfg.getInitParameter("serializer");
 		String partitioner = cfg.getInitParameter("partitioner");
+		
 		String acks = cfg.getInitParameter("acks");
 		topic= cfg.getInitParameter("topic");
 		origtopic= topic;

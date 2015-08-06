@@ -38,15 +38,17 @@ public class ModelUpdater extends HttpServlet implements Watcher, Runnable {
 	@Override
 	public void init(ServletConfig cfg) throws ServletException {
 		super.init(cfg);
-		zookeeperString= cfg.getInitParameter("zookeeper");
-		initZK(zookeeperString);
+		if(!HortonsGym.isInSafeMode()) {
+			zookeeperString = cfg.getInitParameter("zookeeper");
+			initZK(zookeeperString);
+		}
 	}
 
 	private void initZK(String zk) {
 		try {
 			zookeeper = new ZooKeeper(zk, 3000, this);
 			zookeeper.exists(znode, this);
-			dead= false;
+			dead = false;
 			new Thread(new ModelUpdater()).start();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -61,22 +63,28 @@ public class ModelUpdater extends HttpServlet implements Watcher, Runnable {
 			HttpServletResponse response) throws ServletException, IOException {
 
 		Writer writer = response.getWriter();
-		try {
-			pmml= new String(zookeeper.getData(znode, false, null));
-		} catch (KeeperException e1) {
-			e1.printStackTrace();
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
-		}
-		System.out.println("pmml: "+pmml);
 		
+		
+		if (HortonsGym.isInSafeMode()) {
+			pmml = HortonsGym.getModelString();
+		} else {
+			try {
+				pmml = new String(zookeeper.getData(znode, false, null));
+			} catch (KeeperException e1) {
+				e1.printStackTrace();
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+			System.out.println("pmml: " + pmml);
+		}
+
 		try {
 			BufferedReader br = new BufferedReader(new InputStreamReader(this
 					.getClass().getResourceAsStream("/model.html")));
 			String line;
 			while ((line = br.readLine()) != null) {
 				if (line.contains("PMMLCONTENT")) {
-					line= pmml;
+					line = pmml;
 				}
 				writer.write(line + "\n");
 			}
@@ -93,28 +101,31 @@ public class ModelUpdater extends HttpServlet implements Watcher, Runnable {
 			HttpServletResponse response) throws ServletException, IOException {
 
 		BufferedReader reader = request.getReader();
-		
-		StringBuffer in= new StringBuffer();
-		
+		StringBuffer in = new StringBuffer();
+
 		do {
-			String line= reader.readLine();
-			if(line== null)
+			String line = reader.readLine();
+			if (line == null)
 				break;
 			in.append(line);
-		} while(true);
+		} while (true);
+
+		if (HortonsGym.isInSafeMode()) {
+			HortonsGym.setModelString(in.toString());
+		} else {
 		
-		System.out.println("Zookeeper Post: "+ in.toString());
-		
-		try {
-			zookeeper.setData(znode, in.toString().getBytes(), -1);
-		} catch (Exception e1) {
-			e1.printStackTrace();
+			System.out.println("Zookeeper Post: " + in.toString());
+
+			try {
+				zookeeper.setData(znode, in.toString().getBytes(), -1);
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
 		}
-	
 	}
 
 	public void process(WatchedEvent event) {
-		System.out.println("Zookeeper process: "+event);
+		System.out.println("Zookeeper process: " + event);
 		String path = event.getPath();
 		if (event.getType() == Event.EventType.None) {
 			// We are are being told that the state of the
@@ -131,7 +142,7 @@ public class ModelUpdater extends HttpServlet implements Watcher, Runnable {
 				// It's all over
 				dead = true;
 				closing(KeeperException.Code.SessionExpired);
-				initZK(zookeeperString);				
+				initZK(zookeeperString);
 				break;
 			}
 		} else {
@@ -171,7 +182,7 @@ public class ModelUpdater extends HttpServlet implements Watcher, Runnable {
 
 	public void exists(byte[] data) {
 		System.out.println("Zookeeper Exists: " + new String(data));
-		pmml= new String(data);
+		pmml = new String(data);
 	}
 
 }

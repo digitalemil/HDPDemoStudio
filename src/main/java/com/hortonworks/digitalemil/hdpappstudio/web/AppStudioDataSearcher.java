@@ -311,7 +311,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 	public String searchLocationsViaSolr(HttpServletRequest request) {
 		HashMap<Location, Double> locations = new HashMap<Location, Double>();
 
-		SolrServer server = new HttpSolrServer(solrurl);
+		HttpSolrServer server = new HttpSolrServer(solrurl);
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setRows(1024);
 
@@ -332,6 +332,8 @@ public class AppStudioDataSearcher extends HttpServlet {
 		try {
 			rsp = server.query(solrQuery);
 		} catch (SolrServerException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		Iterator<SolrDocument> iter = rsp.getResults().iterator();
@@ -376,7 +378,7 @@ public class AppStudioDataSearcher extends HttpServlet {
 	public String getSolrData(HttpServletRequest request) {
 		StringBuffer ret = new StringBuffer();
 
-		SolrServer server = new HttpSolrServer(solrurl);
+		HttpSolrServer server = new HttpSolrServer(solrurl);
 		SolrQuery solrQuery = new SolrQuery();
 		solrQuery.setRows(1024);
 
@@ -396,6 +398,8 @@ public class AppStudioDataSearcher extends HttpServlet {
 		try {
 			rsp = server.query(solrQuery);
 		} catch (SolrServerException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		Iterator<SolrDocument> iter = rsp.getResults().iterator();

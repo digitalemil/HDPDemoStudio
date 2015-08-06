@@ -10,7 +10,7 @@
 	<fileSets>
 		<fileSet>
 			<directory>target/classes</directory>
-			<outputDirectory></outputDirectory>
+			<outputDirectory>/</outputDirectory>
 		</fileSet>
 		<fileSet>
 			<directory>src/main/webapp/WEB-INF</directory>

@@ -106,11 +106,13 @@ public class IndexSolr extends BaseRichBolt {
 		}
 		System.out.println("SolrIndexer: "+json.toString());
 		if(post(url, "["+json.toString()+"]")) {
-			collector.ack(tuple);
+			System.out.println("Successfully indexed tuple.");
 		}
 		else {
-			collector.fail(tuple);
+			System.out.println("Failed indexing tuple. Skipping.");
 		}
+		collector.ack(tuple);
+		
 	}
 
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {

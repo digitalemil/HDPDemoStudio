@@ -13,7 +13,7 @@
 		</div>
 		<div id="text">
 			<h2>
-				<center>Welcome to HDP App Studio!</center>
+				<center>Welcome to HDPDemoStudio for HDP 2.3.0!</center>
 				</center>
 			</h2>
 			</br>
@@ -112,6 +112,11 @@
 					<td><input type="text" name="hive" id="hive" size="60" /></td>
 				</tr>
 				<tr>
+					<td>Solr Home</td>
+					<td><input type="text" name="solrhome" id="solrhome" size="60"
+						value="/opt/lucidworks-hdpsearch/solr" /></td>
+				</tr>
+				<tr>
 					<td>Solr Core</td>
 					<td><input type="text" name="solr" id="solr" size="60" /></td>
 				</tr>
@@ -132,6 +137,14 @@
 					<tr>
 					<td>Brokerlist</td>
 					<td><input type="text" name="broker" id="broker" size="60" value="sandbox:6667" /></td>
+				</tr>
+					<tr>
+					<td>JDK_HOME</td>
+					<td><input type="text" name="jdkhome" id="jdkhome" size="60" value="/usr/lib/jvm/java-1.7.0-openjdk.x86_64" /></td>
+				</tr>
+					<tr>
+					<td>Namenode</td>
+					<td><input type="text" name="namenode" id="namenode" size="60" value="sandbox:8020" /></td>
 				</tr>
 				<tr>
 					<td>Create WAR file</td>
@@ -265,17 +278,21 @@
 					pivot= document.getElementById("fn"+i).value;
 				}
 			}
+//			document.getElementById("alldiv").style.cursor=cursorStyle;
 			props+= "pivotfield="+pivot+"\n";
 			props+= "hbasetable="+document.getElementById("hbase").value+"\n";
 			props+= "hbasecf="+document.getElementById("cf").value+"\n";
 			props+= "hbase.rootdir="+document.getElementById("hbaseroot").value+"\n";
 			props+= "zparent="+document.getElementById("zparent").value+"\n";
 			props+= "hivetable="+document.getElementById("hive").value+"\n";
+			props+= "solrhome="+document.getElementById("solrhome").value+"\n";
 			props+= "solrcore="+document.getElementById("solr").value+"\n";
 			props+= "solrurl="+document.getElementById("solrurl").value+"\n";
 			props+= "zookeeper="+document.getElementById("zoo").value+"\n";
 			props+= "topic="+document.getElementById("kafka").value+"\n";
 			props+= "broker="+document.getElementById("broker").value+"\n";
+			props+= "jdkhome="+document.getElementById("jdkhome").value+"\n";
+			props+= "namenode="+document.getElementById("namenode").value+"\n";
 			props+= "bgimg=/tmp/bg.jpg"+"\n";
 			
 			if(document.getElementById("war").checked) {

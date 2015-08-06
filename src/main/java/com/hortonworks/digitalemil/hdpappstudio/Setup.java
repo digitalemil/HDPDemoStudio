@@ -37,8 +37,10 @@ public class Setup {
 	static private BufferedReader br;
 	static private BufferedWriter bw;
 	static private String line;
-	public final static String HDP_VERSION= "2.2.4.2-2";
-
+	public final static String HDP_VERSION = "2.3.0.0-2557";
+	static String jdkhome = "/usr/lib/jvm/java-1.7.0-openjdk.x86_64";
+	static String namenode;
+	
 	public final static int STARTFIELDS = 6;
 
 	public static void main(String[] args) throws IOException,
@@ -46,18 +48,7 @@ public class Setup {
 		Properties props = new Properties();
 		String appname = args[0];
 		String path = APPSFOLDER + "/" + appname + "/";
-		BufferedReader br;
-		BufferedWriter bw;
-		String line;
 
-	//	var d= new Date();
-    //    var dt= d.getFullYear()+"-"+(d.getUTCMonth()+1)+"-"+d.getUTCDate()+"T"+d.getUTCHours()+":"+d.getUTCMinutes()+":"+(d.getUTCMilliseconds()/1000.0)+"Z";
-	//	Calendar cal= Calendar.getInstance();
-	//	String time= cal.get(Calendar.YEAR)+"-"+(new Integer(cal.get(Calendar.MONTH))+1)+"-"+cal.get(Calendar.DAY_OF_MONTH)+"T"+cal.get(Calendar.HOUR_OF_DAY)+":"+cal.get(Calendar.MINUTE)+":"+cal.get(Calendar.SECOND)+"."+(""+(new Integer(cal.get(Calendar.MILLISECOND))/1000.0f)).substring(2)+"Z";
-//		System.out.println("Time: "+time);
-		
-//		System.exit(1);
-		
 		// Reading Properties file
 		try {
 			InputStream is = new FileInputStream(args[1]);
@@ -66,12 +57,20 @@ public class Setup {
 			e.printStackTrace();
 			return;
 		}
-		System.out.println("Props: "+props);
-		
-		String ip = "127.0.0.1";
-		if (args.length > 2)
-			ip = args[2];
-		String solrurl = props.getProperty("solrurl");
+		System.out.println("Props: " + props);
+
+		String ip = "http://127.0.0.1:8983/solr/";
+
+		String solrhome = "/opt/lucidworks-hdpsearch/solr";
+		if (args.length > 2) {
+			jdkhome = args[2];
+		}
+		System.out.println("JDK_HOME="+jdkhome);
+		if (args.length > 3) {
+			ip = args[3];
+			solrhome = args[4];
+		}
+		String solrurl = ip;
 		if (solrurl == null) {
 			solrurl = "http://127.0.0.1:8983/solr/";
 		}
@@ -83,8 +82,14 @@ public class Setup {
 			solrcore = "hdpcore";
 		}
 
-		createBananaDashboard(appname, props, solrurl, solrcore);
-	
+		if (args.length > 4) {
+			namenode= args[5];
+		}
+		else {
+			namenode= "127.0.0.1:8020";
+		}
+		createBananaDashboard(appname, props, solrurl, solrcore, solrhome);
+
 		// Creating app destination folder
 		// Extracting jar with classes
 		Runtime.getRuntime().exec("mkdir -p " + path + "jar/WEB-INF").waitFor();
@@ -99,8 +104,8 @@ public class Setup {
 
 		}
 		Runtime.getRuntime()
-				.exec("/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar xvf ../../../target/HDPDemoStudio-"+HDP_VERSION+"-distribution.jar",
-						new String[0],
+				.exec(jdkhome + "/bin/jar xvf ../../../target/HDPDemoStudio-"
+						+ HDP_VERSION + "-distribution.jar", new String[0],
 						new File(currentDir + "/" + path + "jar")).waitFor();
 
 		// Reading settings from properties
@@ -173,11 +178,26 @@ public class Setup {
 			} catch (Exception e) {
 
 			}
+			if(new File("target/HDPDemoStudio-"
+							+ HDP_VERSION + "-distribution.jar").exists()) {
+				
+				// Source version
 			Runtime.getRuntime()
-					.exec("/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar xvf ../../../target/HDPDemoStudio-"+HDP_VERSION+"-distribution.jar",
-							new String[0],
+					.exec(jdkhome
+							+ "/bin/jar xvf ../../../target/HDPDemoStudio-"
+							+ HDP_VERSION + "-distribution.jar", new String[0],
 							new File(currentDir + "/" + path + "war"))
 					.waitFor();
+			}
+			else {
+				// Binary version
+				Runtime.getRuntime()
+				.exec(jdkhome
+						+ "/bin/jar xvf /root/HDPDemoStudio-"
+						+ HDP_VERSION + "-distribution.jar", new String[0],
+						new File(currentDir + "/" + path + "war"))
+				.waitFor();
+			}
 			Runtime.getRuntime()
 					.exec("mv " + path + "war/com " + path
 							+ "war/WEB-INF/classes/").waitFor();
@@ -212,30 +232,27 @@ public class Setup {
 
 		setupSolrSchema(props, path, solrcore);
 
-		setupBanana(solrurl, solrcore);
+		//setupBanana(solrurl, solrcore);
 
 		createWebXml(path, topic, hbasetable, hbasecf, pivotfield, solrurl,
 				solrcore, brokerlist);
 
-		createIndexHTML(path, showLocation);
+		createIndexHTML(path, showLocation, solrurl);
 
 		createDataHTML(path, props, showLocation);
 
-		createSolrCore(path, solrcore);
+		createSolrCore(path, solrcore, solrhome);
 
 		// Create Ambari-View jar file
 		Runtime.getRuntime()
-				.exec("/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar cf /var/lib/ambari-server/resources/views/"
-						+ appname
-						+ ".jar -C "
-						+ currentDir
-						+ "/"
-						+ path
+				.exec(jdkhome
+						+ "/bin/jar cf /var/lib/ambari-server/resources/views/"
+						+ appname + ".jar -C " + currentDir + "/" + path
 						+ "jar/ .").waitFor();
 
 		// Create app specific start script
 		createStartScript(appname, path, hbasetable, solrcore, solrurl, topic,
-				brokerlist, fields, ddl, hivetable);
+				brokerlist, fields, ddl, hivetable, solrhome);
 
 		// Build war file, first copy necessary files from ambari-view jar
 		// folder to war folder
@@ -244,9 +261,9 @@ public class Setup {
 		}
 
 		createDataGeneratorScript(path, fields);
-		
+
 		System.out.println("Please find your app in " + path);
-		System.out.println("Start it: sh ./" + path + "start.sh");
+		System.out.println("After verifying that all services are started fire up your application: sh ./" + path + "start.sh");
 	}
 
 	private static void createDataHTML(String path, Properties props,
@@ -310,7 +327,7 @@ public class Setup {
 		}
 	}
 
-	private static void createIndexHTML(String path, String showLocation) {
+	private static void createIndexHTML(String path, String showLocation, String solrurl) {
 
 		try {
 			br = new BufferedReader(new InputStreamReader(new Setup()
@@ -318,6 +335,10 @@ public class Setup {
 			bw = new BufferedWriter(new FileWriter(path + "jar/index.html"));
 
 			while ((line = br.readLine()) != null) {
+				if (line.contains("127.0.0.1:8983")) {
+					line= "onclick=\"window.open('"+solrurl+"banana/index.html')\"";
+				}
+				
 				if (line.contains("MYMARKER")) {
 					if (showLocation.equals("false")) {
 						line = "var showLocation= false;";
@@ -374,7 +395,7 @@ public class Setup {
 	}
 
 	private static void createBananaDashboard(String appname, Properties props,
-			String solrurl, String solrcore) {
+			String solrurl, String solrcore, String solrhome) {
 		JSONObject jobj = null;
 		String facet = props.getProperty("facetfield");
 
@@ -383,14 +404,17 @@ public class Setup {
 		}
 
 		try {
-			Runtime.getRuntime()
-					.exec("mv banana/src/app/dashboards/default.json banana/src/app/dashboards/default.orig")
-					.waitFor();
-
+			File f = new File(solrhome+"/server/solr-webapp/webapp/banana/app/dashboards/default.orig");
+			if(!f.exists()) {
+				Runtime.getRuntime()
+				.exec("mv "+solrhome+"/server/solr-webapp/webapp/banana/app/dashboards/default.json "+solrhome+"/server/solr-webapp/webapp/banana/app/dashboards/default.orig")
+				.waitFor();
+			}
+			
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(
-					"banana/src/app/dashboards/default.orig")));
+					solrhome+"/server/solr-webapp/webapp/banana/app/dashboards/default.orig")));
 			bw = new BufferedWriter(new FileWriter(
-					"banana/src/app/dashboards/default.json"));
+					solrhome+"/server/solr-webapp/webapp/banana/app/dashboards/default.json"));
 
 			StringBuffer buf = new StringBuffer();
 			do {
@@ -413,7 +437,7 @@ public class Setup {
 					.getJSONArray("panels").getJSONObject(1);
 			search.put("query", facet + ":*");
 			search.getJSONArray("history").put(0, facet + ":*");
-			
+
 			JSONObject terms = jobj.getJSONArray("rows").getJSONObject(4)
 					.getJSONArray("panels").getJSONObject(1);
 			terms.put("title", facet);
@@ -429,81 +453,81 @@ public class Setup {
 					.getJSONObject(0).put("timespan", "2d");
 			jobj.getJSONObject("solr").put("server", solrurl);
 			jobj.getJSONObject("solr").put("core_name", solrcore);
-			JSONObject events= jobj.getJSONArray("rows").getJSONObject(5);
-			events.getJSONArray("panels")
-					.getJSONObject(0).getJSONArray("fields").put(0, facet);
-			
-			String f0= props.getProperty("name_"+STARTFIELDS);
-			String f1= props.getProperty("name_"+(STARTFIELDS+1));
-			String locationpanel= " {"
-			          +" 'error': false,"
-			          +" 'span': 6,"
-			         +"  'editable': true,"
-			         +"  'type': 'bettermap',"
-			          +" 'loadingEditor': false,"
-			         +"  'queries': {"
-			          +"   'mode': 'all',"
-			           +"  'ids': ["
-			            +"   0"
-			           +"  ],"
-			           +"  'query': 'q=*&df=message&wt=json&rows=1000&fq=event_timestamp:[NOW/DAY-2DAY%20TO%20NOW/DAY%2B1DAY]&sort=event_timestamp desc',"
-			           +"  'custom': ''"
-			         +"  },"
-			          +" 'size': 1000,"
-			          +" 'spyable': true,"
-			          +" 'lat_start': '',"
-			          +" 'lat_end': '',"
-			          +" 'lon_start': '',"
-			          +" 'lon_end': '',"
-			          +" 'field': 'location',"
-			          +" 'title': 'Locations',"
-			         +"  'tooltip': '"+f1+"'"
-			        +" }";
-			String showLocations= props.getProperty("showLocation");
-			boolean locs= true;
-			if("false".equals(showLocations)) {
-				locs= false;
-			}
-			String newrow= " { "
-			     +" 'title': 'More',"
-			      +" 'height': '300px',"
-			      +" 'editable': true,"
-			      +" 'collapse': false,"
-			      +" 'collapsable': true,"
-			      +" 'panels': ["
-			       +"  {"
-			        +"   'error': false,"
-			        +"   'span': 6,"
-			         +"  'editable': true,"
-			         +"  'type': 'heatmap',"
-			         +"  'loadingEditor': false,"
-			          +" 'queries': {"
-			           +"  'mode': 'all',"
-			            +" 'ids': ["
-			             +"  0"
-			           +"  ],"
-			           +"  'query': 'q=*&df=message&fq=event_timestamp:[NOW/DAY-2DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0&facet=true&facet.pivot="+f0+","+f1+"&facet.limit=300&facet.pivot.mincount=0',"
-			           +"  'custom': ''"
-			         +"  },"
-			          +" 'size': 0,"
-			          +" 'row_field': '"+f0+"',"
-			          +" 'col_field': '"+f1+"',"
-			          +" 'row_size': 300,"
-			          +" 'editor_size': 300,"
-			          +" 'color': 'red',"
-			          +" 'spyable': true,"
-			          +" 'transpose_show': true,"
-			          +" 'transposed': false,"
-			          +" 'title': 'Heatmap'"
-			        +" },"
-			        +(locs?(locationpanel):"")
-			      +" ]"
-			    +" },";
+			JSONObject events = jobj.getJSONArray("rows").getJSONObject(5);
+			events.getJSONArray("panels").getJSONObject(0)
+					.getJSONArray("fields").put(0, facet);
 
-			JSONObject more= new JSONObject(newrow);
+			String f0 = props.getProperty("name_" + STARTFIELDS);
+			String f1 = props.getProperty("name_" + (STARTFIELDS + 1));
+			String locationpanel = " {"
+					+ " 'error': false,"
+					+ " 'span': 6,"
+					+ "  'editable': true,"
+					+ "  'type': 'bettermap',"
+					+ " 'loadingEditor': false,"
+					+ "  'queries': {"
+					+ "   'mode': 'all',"
+					+ "  'ids': ["
+					+ "   0"
+					+ "  ],"
+					+ "  'query': 'q=*&df=message&wt=json&rows=1000&fq=event_timestamp:[NOW/DAY-2DAY%20TO%20NOW/DAY%2B1DAY]&sort=event_timestamp desc',"
+					+ "  'custom': ''" + "  }," + " 'size': 1000,"
+					+ " 'spyable': true," + " 'lat_start': '',"
+					+ " 'lat_end': ''," + " 'lon_start': '',"
+					+ " 'lon_end': ''," + " 'field': 'location',"
+					+ " 'title': 'Locations'," + "  'tooltip': '" + f1 + "'"
+					+ " }";
+			String showLocations = props.getProperty("showLocation");
+			boolean locs = true;
+			if ("false".equals(showLocations)) {
+				locs = false;
+			}
+			String newrow = " { "
+					+ " 'title': 'More',"
+					+ " 'height': '300px',"
+					+ " 'editable': true,"
+					+ " 'collapse': false,"
+					+ " 'collapsable': true,"
+					+ " 'panels': ["
+					+ "  {"
+					+ "   'error': false,"
+					+ "   'span': 6,"
+					+ "  'editable': true,"
+					+ "  'type': 'heatmap',"
+					+ "  'loadingEditor': false,"
+					+ " 'queries': {"
+					+ "  'mode': 'all',"
+					+ " 'ids': ["
+					+ "  0"
+					+ "  ],"
+					+ "  'query': 'q=*&df=message&fq=event_timestamp:[NOW/DAY-2DAY%20TO%20NOW/DAY%2B1DAY]&wt=json&rows=0&facet=true&facet.pivot="
+					+ f0
+					+ ","
+					+ f1
+					+ "&facet.limit=300&facet.pivot.mincount=0',"
+					+ "  'custom': ''"
+					+ "  },"
+					+ " 'size': 0,"
+					+ " 'row_field': '"
+					+ f0
+					+ "',"
+					+ " 'col_field': '"
+					+ f1
+					+ "',"
+					+ " 'row_size': 300,"
+					+ " 'editor_size': 300,"
+					+ " 'color': 'red',"
+					+ " 'spyable': true,"
+					+ " 'transpose_show': true,"
+					+ " 'transposed': false,"
+					+ " 'title': 'Heatmap'"
+					+ " },"
+					+ (locs ? (locationpanel) : "") + " ]" + " },";
+
+			JSONObject more = new JSONObject(newrow);
 			jobj.getJSONArray("rows").put(5, more);
 			jobj.getJSONArray("rows").put(6, events);
-			
+
 			bw.write(jobj.toString());
 			bw.flush();
 			bw.close();
@@ -526,8 +550,8 @@ public class Setup {
 					.exec("cp -f " + path + "jar/index.html " + path
 							+ "war/index.html").waitFor();
 			Runtime.getRuntime()
-			.exec("cp -f " + path + "jar/bg.jpg " + path
-					+ "war/bg.jpg").waitFor();
+					.exec("cp -f " + path + "jar/bg.jpg " + path + "war/bg.jpg")
+					.waitFor();
 			Runtime.getRuntime()
 					.exec("cp -f " + path + "jar/data.html " + path
 							+ "war/data.html").waitFor();
@@ -545,14 +569,13 @@ public class Setup {
 					.exec("cp -f " + path + "jar/bg.jpg " + path + "war/bg.jpg")
 					.waitFor();
 
-			System.out.println("Creating WAR: "
-					+ "/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar cf "
+			System.out.println("Creating WAR: " + jdkhome + "/bin/jar cf "
 					+ path + appname + ".war -C " + currentDir + "/" + path
 					+ "war/ .");
 			Runtime.getRuntime()
-					.exec("/usr/lib/jvm/java-1.7.0-openjdk.x86_64/bin/jar cf "
-							+ path + appname + ".war -C " + currentDir + "/"
-							+ path + "war/ .").waitFor();
+					.exec(jdkhome + "/bin/jar cf " + path + appname
+							+ ".war -C " + currentDir + "/" + path + "war/ .")
+					.waitFor();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -560,22 +583,25 @@ public class Setup {
 		}
 	}
 
-	private static void createSolrCore(String path, String solrcore) {
+	private static void createSolrCore(String path, String solrcore,
+			String solrhome) {
 		try {
-			// Copy default core files to "our" core
+			
 			Runtime.getRuntime()
-					.exec("cp -fr /opt/solr/solr/hdp/solr/hdp1 /opt/solr/solr/hdp/solr/"
-							+ solrcore).waitFor();
-
-			// Copy our generated schema to destination
+			.exec("mv "+solrhome+"/server/solr/hdp "+solrhome+"/server/solr/"+solrcore).waitFor();
+			
+							
 			Runtime.getRuntime()
-					.exec("cp " + path + "schema.xml /opt/solr/solr/" + "hdp"
-							+ "/solr/" + solrcore + "/conf/schema.xml")
-					.waitFor();
+			.exec("cp " + solrhome+"/server/solr/configsets/basic_configs/conf/solrconfig.xml "+solrhome+"/server/solr/"+solrcore+"/conf/").waitFor();
+			
+			Runtime.getRuntime()
+					.exec("cp " + path + "schema.xml " + solrhome
+							+ "/server/solr/" + solrcore
+							+ "/conf/schema.xml").waitFor();
 
 			// Read solrconfig and modifiy it to store index-files on HDFS
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(
-					"/opt/solr/solr/" + "hdp" + "/solr/" + solrcore
+					solrhome+"/server/solr/"+ solrcore
 							+ "/conf/solrconfig.xml")));
 			bw = new BufferedWriter(new FileWriter(path + "solrconfig.xml"));
 			boolean inDirFac = false;
@@ -589,7 +615,7 @@ public class Setup {
 				if (line.contains("</directoryFactory>")) {
 					inDirFac = false;
 					bw.write("<directoryFactory name=\"DirectoryFactory\" class=\"solr.HdfsDirectoryFactory\">\n"
-							+ "<str name=\"solr.hdfs.home\">hdfs://sandbox:8020/user/solr</str>\n"
+							+ "<str name=\"solr.hdfs.home\">hdfs://"+namenode+"/user/solr</str>\n"
 							+ "<bool name=\"solr.hdfs.blockcache.enabled\">true</bool>\n"
 							+ "<int name=\"solr.hdfs.blockcache.slab.count\">1</int>\n"
 							+ "<bool name=\"solr.hdfs.blockcache.direct.memory.allocation\">true</bool>\n"
@@ -614,8 +640,8 @@ public class Setup {
 		// Copy generated solrconfig to destination folder
 		try {
 			Runtime.getRuntime()
-					.exec("cp " + path + "solrconfig.xml /opt/solr/solr/"
-							+ "hdp" + "/solr/" + solrcore
+					.exec("cp " + path + "solrconfig.xml "+solrhome+"/server/solr/"
+							+ solrcore 
 							+ "/conf/solrconfig.xml").waitFor();
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
@@ -626,7 +652,7 @@ public class Setup {
 		// Set core name
 		try {
 			bw = new BufferedWriter(new OutputStreamWriter(
-					new FileOutputStream("/opt/solr/solr/hdp/solr/" + solrcore
+					new FileOutputStream(solrhome+"/server/solr/" + solrcore
 							+ "/core.properties")));
 			bw.write("name=" + solrcore + "\n");
 			bw.close();
@@ -653,16 +679,23 @@ public class Setup {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private static void createStartScript(String appname, String path,
 			String hbasetable, String solrcore, String solrurl, String topic,
-			String brokerlist, String fields, String ddl, String hivetable) {
+			String brokerlist, String fields, String ddl, String hivetable, String solrhome) {
 		try {
 			br = new BufferedReader(new InputStreamReader(new Setup()
 					.getClass().getResourceAsStream("/start.sh")));
 			bw = new BufferedWriter(new FileWriter(path + "start.sh"));
 
 			while ((line = br.readLine()) != null) {
+				
+				if (line.contains("JAVA_HOME:=JAVA_HOME")) {
+					line= ": ${JAVA_HOME:="+jdkhome+"}";
+				}
+				if (line.contains("#Starting Solr")) {
+					line= solrhome+"/bin/solr restart\n";
+				}
 				if (line.contains("export APPNAME")) {
 					line = "export APPNAME=" + appname;
 				}
@@ -729,7 +762,7 @@ public class Setup {
 		//
 		try {
 			br = new BufferedReader(new InputStreamReader(props.getClass()
-					.getResourceAsStream("/schema.xml")));
+					.getResourceAsStream("/solrschema521.xml")));
 			bw = new BufferedWriter(new FileWriter(path + "schema.xml"));
 
 			while ((line = br.readLine()) != null) {
@@ -780,8 +813,8 @@ public class Setup {
 		// Modifying Banana
 		// Pointing to real IP & core
 		//
-		line= "";
-		
+		line = "";
+
 		String BANANA1 = "solr: \"http://localhost:8983/solr/\",";
 		String BANANA2 = "solr_core: \"logstash_logs\"";
 		String BANANA3 = "server\": \"http://localhost:8983/solr/\"";
