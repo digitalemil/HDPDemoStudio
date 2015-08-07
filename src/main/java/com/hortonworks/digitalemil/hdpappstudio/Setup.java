@@ -621,7 +621,7 @@ public class Setup {
 							+ "<bool name=\"solr.hdfs.blockcache.direct.memory.allocation\">true</bool>\n"
 							+ "<int name=\"solr.hdfs.blockcache.blocksperbank\">16384</int>\n"
 							+ "<bool name=\"solr.hdfs.blockcache.read.enabled\">true</bool>\n"
-							+ "<bool name=\"solr.hdfs.blockcache.write.enabled\">true</bool>\n"
+							+ "<bool name=\"solr.hdfs.blockcache.write.enabled\">false</bool>\n"
 							+ "<bool name=\"solr.hdfs.nrtcachingdirectory.enable\">true</bool>\n"
 							+ "<int name=\"solr.hdfs.nrtcachingdirectory.maxmergesizemb\">16</int>\n"
 							+ "<int name=\"solr.hdfs.nrtcachingdirectory.maxcachedmb\">192</int>\n");
