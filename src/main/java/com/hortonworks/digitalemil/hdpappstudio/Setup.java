@@ -22,7 +22,6 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
 public class Setup {
 	public static final String MARKER1 = "DO NOT REMOVE ME NEEDED FOR THE SOLRWORKSHOP ITEM1";
 	public static final String MARKER2 = "DO NOT REMOVE ME NEEDED FOR THE SOLRWORKSHOP ITEM2";
