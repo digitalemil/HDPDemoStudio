@@ -2,6 +2,8 @@
 
 SOLR_HOME=/opt/lucidworks-hdpsearch/solr
 rm -fr /opt/lucidworks-hdpsearch/solr/server/solr/myCollection_shard1_replica1
+rm -fr /opt/lucidworks-hdpsearch/solr/server/logs/*
+chown -R solr /opt/lucidworks-hdpsearch/solr/server/logs
 
 ambari-server restart
 ambari-agent restart

@@ -40,16 +40,21 @@ echo Create Horton's Gym zk path
 
 #Starting Solr
 
+sudo -u hdfs hadoop fs -mkdir /user/root
+sudo -u hdfs hadoop fs -chmod 777 /user/guest /user/root
+
 echo Creating Hive Table: $HIVETABLE
 sudo -u hive echo $DDL | hive
+
+cwd=$(pwd)
 
 echo Starting Spark-Streaming
 SPARKTOPIC=$TOPIC-spark
 # Remove the following "#" in case you want to stream via Spark. Make sure you adjusted the YARN memory settings before.
-#/usr/hdp/current/spark-client/bin/spark-submit --class com.hortonworks.digitalemil.hdpdemostudio.Spark --master yarn-cluster --num-executors 2 --driver-memory 512m --executor-memory 512m --executor-cores 1 SparkStreaming/target/HDPDemoStudioSparkStreaming-*-distribution.jar  $ZOOKEEPER $SPARKTOPIC $SPARKTOPIC 1 $SOLRURL $SOLRCORE $HBASETABLE $HBASECF >/tmp/spark.out 2>/tmp/spark.err &
+/usr/hdp/current/spark-client/bin/spark-submit --class com.hortonworks.digitalemil.hdpdemostudio.Spark --master yarn-cluster --num-executors 2 --driver-memory 512m --executor-memory 512m --executor-cores 1 $cwd/SparkStreaming/target/HDPDemoStudioSparkStreaming-*-distribution.jar  $ZOOKEEPER $SPARKTOPIC $SPARKTOPIC 1 $SOLRURL $SOLRCORE $HBASETABLE $HBASECF >/tmp/spark.out 2>/tmp/spark.err &
 
 echo Deploying Storm topology
-cwd=$(pwd)
+
 storm jar $cwd/StormTopology/target/HDPDemoStudioStormTopology-*-distribution.jar com.hortonworks.digitalemil.hdpappstudio.storm.Topology $APPNAME $ZOOKEEPER $SOLRURL$SOLRCORE/update/json?commit=true $HBASETABLE $HBASECF $TOPIC $HIVETABLE $HBASEROOTDIR $ZOOKEEPERZNODEPARENT $FIELDS
 
 echo IMPORTANT:

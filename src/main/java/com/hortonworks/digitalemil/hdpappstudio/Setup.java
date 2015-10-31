@@ -36,7 +36,7 @@ public class Setup {
 	static private BufferedReader br;
 	static private BufferedWriter bw;
 	static private String line;
-	public final static String HDP_VERSION = "2.3.0.0-2557";
+	public final static String HDP_VERSION = "2.3.2.0-2950";
 	static String jdkhome = "/usr/lib/jvm/java-1.7.0-openjdk.x86_64";
 	static String namenode;
 	
@@ -693,7 +693,7 @@ public class Setup {
 					line= ": ${JAVA_HOME:="+jdkhome+"}";
 				}
 				if (line.contains("#Starting Solr")) {
-					line= solrhome+"/bin/solr restart\n";
+					line= "sudo -u solr "+solrhome+"/bin/solr restart\n";
 				}
 				if (line.contains("export APPNAME")) {
 					line = "export APPNAME=" + appname;

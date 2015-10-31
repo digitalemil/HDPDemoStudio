@@ -11,8 +11,8 @@ fi
 
 echo Using $ip for the Banana Dashboard
 
-$SOLR_HOME/bin/solr start
-$SOLR_HOME/bin/solr create -c hdp
+sudo -u solr $SOLR_HOME/bin/solr start
+sudo -u solr $SOLR_HOME/bin/solr create -c hdp
 
 
 java -cp target/classes:lib/json-20140107.jar com.hortonworks.digitalemil.hdpappstudio.Setup $1 $2 $3 http://$ip:8983/solr $4 sandbox:8020

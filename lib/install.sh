@@ -10,17 +10,20 @@ SOLR_HOME=$1
 if [ "$SOLR_HOME" == "" ]
 then SOLR_HOME=/opt/lucidworks-hdpsearch/solr
 fi
+rm -fr /opt/lucidworks-hdpsearch/solr/server/solr/myCollection_shard1_replica1
+rm -fr /opt/lucidworks-hdpsearch/solr/server/logs/*
+chown -R solr /opt/lucidworks-hdpsearch/solr/server/logs
 
-$SOLR_HOME/bin/solr start
-$SOLR_HOME/bin/solr create -c hdp
+sudo -u solr $SOLR_HOME/bin/solr start
+sudo -u solr $SOLR_HOME/bin/solr create -c hdp
 
 echo Waiting until Ambari is fully up
 sleep 120
 
 cwd=$(pwd)
 
-cp json-20140107.jar /var/lib/ambari-server/resources/views/work/HDPDemoStudio\{2.3.0\}/
-cd /var/lib/ambari-server/resources/views/work/HDPDemoStudio\{2.3.0\}/
+cp json-20140107.jar /var/lib/ambari-server/resources/views/work/HDPDemoStudio\{2.3.2\}/
+cd /var/lib/ambari-server/resources/views/work/HDPDemoStudio\{2.3.2\}/
 cd ${pwd}
 
 curl -u admin:admin -i -H 'X-Requested-By: ambari' -X PUT -d '{"RequestInfo":{"context":"Turn Off Maintenance Mode"},"Body":{"ServiceInfo":{"maintenance_state":"OFF"}}}'  http://127.0.0.1:8080/api/v1/clusters/Sandbox/services/KAFKA

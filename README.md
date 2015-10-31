@@ -4,12 +4,12 @@ HDPDemoStudio
 Making HDP Demos easy
 
 
-Now supporting HDP 2.3.0.0.-2577
+Now supporting HDP 2.3.2.0-2950
 
 Default mode is binary delivery now. This means HDPAppStudio is an Ambari View on it's own. 
 Having said that property-files are still ok. In fact the Ambari view takes your input and creates a property-file from them.
 
-To build HDP AppStudio run the following commands on a 2.3.0.0-2577 Sandbox or cluster:
+To build HDP AppStudio run the following commands on a 2.3.2.0-2950 Sandbox or cluster:
 ```
 $ mvn clean compile assembly:single
 $ cd StormTopology

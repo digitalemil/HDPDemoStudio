@@ -5,16 +5,16 @@
 
 	<groupId>com.hortonworks.digitalemil</groupId>
 	<artifactId>HDPDemoStudio</artifactId>
-	<version>2.3.0.0-2557</version>
+	<version>2.3.2.0-2950</version>
 	<packaging>jar</packaging>
 
   
 	<name>HDP Demo Studio</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<hdp.version>2.3.0.0-2557</hdp.version>
+		<hdp.version>2.3.2.0-2950</hdp.version>
 		<hadoop.version>2.7.1</hadoop.version>
-		<hbase.version>1.1.1</hbase.version>
+		<hbase.version>1.1.2</hbase.version>
 		<kafka.version>0.8.2</kafka.version>
 	</properties>
 
