@@ -10,7 +10,7 @@ public class MyFunction2 implements Function<JavaRDD<String>, Void> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public String solrurl;
+	public static String solrurl;
 	static transient public HTable table;
 	
 	public String getSolrurl() {
@@ -31,19 +31,31 @@ public class MyFunction2 implements Function<JavaRDD<String>, Void> {
 	}
 	
 	public Void call(JavaRDD<String> rdd) throws Exception {
+		System.out.println("MyFunction2 call(): " + rdd+" table: "+table+" solrurl: "+solrurl);
 		if(rdd.count()> 0) {
-			System.out.println("Table: "+table);
+		
 			if(table!= null) {
+				System.out.println("Table: "+table);
 				table.flushCommits();
 				table.close();
 			}
-			System.out.println("Solrurl: "+solrurl);
+		
 			if(solrurl!= null) {
 				Spark.post(solrurl+"?commit=true", "");
-				rdd.saveAsTextFile("hdfs://sandbox:8020/user/guest/spark/dstream"+System.currentTimeMillis());		
+				String fname= "hdfs://sandbox:8020/user/guest/spark/dstream"+rdd.hashCode()+"_"+System.currentTimeMillis();
+				try {
+					rdd.saveAsTextFile(fname);		
+				}
+				catch(Exception e) {
+					e.printStackTrace();
+					System.err.println("Can't write: "+fname);
+					System.err.println("rdd.length: "+rdd.count());
+							
+				}
 			}
 		
 		}
+		System.out.println("MyFunction2 done");
 		return null;
 	}
 }

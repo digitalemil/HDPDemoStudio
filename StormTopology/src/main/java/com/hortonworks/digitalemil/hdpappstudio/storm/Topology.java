@@ -39,14 +39,15 @@ public class Topology {
 	public static final String HBASE_BOLT_ID = "hbase-bolt";
 	public static final String HDFS_BOLT_ID = "hive-hdfs-bolt";
 	public static final String RAWHDFS_BOLT_ID = "raw-hdfs-bolt";
-
+	private static String namenode="127.0.0.1:8020";
+	private static String brokerlist="sandbox:8020";
+	
 	public static final String TUPLETRANSFORMER_BOLT_ID = "tupletransformer-bolt";
 
 	public static void main(String[] args) throws Exception {
 
-		if (args.length < 9) {
-			System.err
-					.println("Error Deploying Topology. Too few arguments. I needed:\n0. Topology Name\n1. ZooKeeper Hosts  e.g. 127.0.0.1\n2. Solr URL e.g. http://127.0.0.1:8983/solr/locations/update/json?commit=true\n3. HBaseTablename\n4. HBaseColumnFamily\n5. Kafka Topic\n6. HiveTable\n.7. HBaseRootdir\n8. Zookeeper.Znode.Parent\nfield0\n...fieldN");
+		if (args.length < 11) {
+			System.err.println("Error Deploying Topology. Too few arguments. I needed:\n0. Topology Name\n1. ZooKeeper Hosts  e.g. 127.0.0.1\n2. Solr URL e.g. http://127.0.0.1:8983/solr/locations/update/json?commit=true\n3. HBaseTablename\n4. HBaseColumnFamily\n5. Kafka Topic\n6. HiveTable\n.7. HBaseRootdir\n8. Zookeeper.Znode.Parent\n9. Namenode (e.g. 127.0.0.1:8020)\n10. Brokerlist (e.g. sandbox:6667)\nfield0\n...fieldN");
 		}
 		String tname = args[0];
 		BrokerHosts hosts = new ZkHosts(args[1]);
@@ -61,8 +62,7 @@ public class Topology {
 		spoutConfig.startOffsetTime = System.currentTimeMillis();
 
 		Properties props = new Properties();
-		props.put("metadata.broker.list",
-				"sandbox.hortonworks.com:6667");
+		   props.put("metadata.broker.list", brokerlist);
 		props.put("request.required.acks", "1");
 		props.put("serializer.class", "kafka.serializer.StringEncoder");
 		stormconfig.put(TridentKafkaState.KAFKA_BROKER_PROPERTIES, props);
@@ -70,11 +70,11 @@ public class Topology {
 		KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
 		IndexSolr index = new IndexSolr(args[2]);
 
-		int l = args.length - 9;
+		int l = args.length - 11;
 		String[] keys = new String[l];
 
 		for (int i = 0; i < l; i++) {
-			keys[i] = args[i + 9];
+			keys[i] = args[i + 11];
 			System.out.print("Field: " + keys[i] + " ");
 		}
 		System.out.println();
@@ -89,6 +89,8 @@ public class Topology {
 		String hivetable = args[6];
 		String hbaserootdir = args[7];
 		String zookeeperznodeparent = args[8];
+		namenode= args[9];
+		brokerlist= args[10];
 
 		System.out.println("HBase Table: " + hbasetable);
 		System.out.println("HBase CF: " + columnfamily);
@@ -125,7 +127,7 @@ public class Topology {
 
 		// Instantiate the HdfsBolt
 		HdfsBolt hdfsbolt = new HdfsBolt()
-				.withFsUrl("hdfs://sandbox.hortonworks.com:8020")
+		 .withFsUrl("hdfs://"+namenode)
 				.withFileNameFormat(fileNameFormat).withRecordFormat(format)
 				.withRotationPolicy(rotationPolicy).withSyncPolicy(syncPolicy);
 
@@ -133,7 +135,7 @@ public class Topology {
 		fileNameFormat = new DefaultFileNameFormat()
 				.withPath("/user/guest/hdpdemostudio/raw/" + hivetable);
 		HdfsBolt rawBolt = new HdfsBolt()
-				.withFsUrl("hdfs://sandbox.hortonworks.com:8020")
+		 .withFsUrl("hdfs://"+namenode)
 				.withFileNameFormat(fileNameFormat).withRecordFormat(format)
 				.withRotationPolicy(rotationPolicy).withSyncPolicy(syncPolicy);
 

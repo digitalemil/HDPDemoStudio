@@ -36,7 +36,7 @@ public class Setup {
 	static private BufferedReader br;
 	static private BufferedWriter bw;
 	static private String line;
-	public final static String HDP_VERSION = "2.3.2.0-2950";
+	public final static String HDP_VERSION = "2.4.0.0-169";
 	static String jdkhome = "/usr/lib/jvm/java-1.7.0-openjdk.x86_64";
 	static String namenode;
 	
@@ -711,7 +711,10 @@ public class Setup {
 					line = "export TOPIC=" + topic;
 				}
 				if (line.contains("export BROKERLIST")) {
-					line = "export BROKDERLIST=" + brokerlist;
+					line = "export BROKERLIST=" + brokerlist;
+				}
+				if (line.contains("export NAMENODE")) {
+					line = "export NAMENODE=" + namenode;
 				}
 				if (line.contains("export FIELDS")) {
 					line = "export FIELDS=" + fields;

@@ -61,7 +61,7 @@ import org.apache.spark.streaming.kafka.KafkaUtils;
  */
 
 public final class Spark {
-  final String defaults[]= {"127.0.0.1:2181", "hr-spark", "hr-spark", "1", "http://127.0.0.1:8983/solr/", "hr", "hr", "all"};
+  final String defaults[]= {"127.0.0.1:2181", "hr-spark", "hr-spark", "1", "http://sandbox:8983/solr/", "hr", "hr", "all", "hdfs://sandbox:8020/apps/hbase/data/"};
   String solrurl;
   private Spark() {
   }
@@ -73,7 +73,7 @@ public final class Spark {
   
   public void init(String[] args) {
 	  
-   if (args.length < 8) {
+   if (args.length < 9) {
     	args= defaults;
     }
     solrurl= args[4]+args[5]+"/update/json";
@@ -105,17 +105,19 @@ public final class Spark {
     MyFunction3 hbase= new MyFunction3();
     hbase.setHbasetable(args[6]);
     hbase.setHbasecf(args[7]);
+    hbase.setHbaseRootDir(args[8]);
     hbase.init();
     MyFunction2 hbaseCommit= new MyFunction2();
     
-    messages.map(solr).foreach(hdfsAndSolrCommit);
-    messages.map(hbase).foreach(hbaseCommit);
-    
+    messages.map(solr).foreachRDD(hdfsAndSolrCommit);
+    messages.map(hbase).foreachRDD(hbaseCommit);
+     
     jssc.start();
     jssc.awaitTermination();
   }
   
   public static boolean post(String serverUrl, String json) {
+	   System.out.println("Spark post: "+json+" to: "+serverUrl);
 		URL url = null;
 		try {
 			url = new URL(serverUrl);
@@ -173,6 +175,8 @@ public final class Spark {
 			return false;
 		}
 		connection.disconnect();
+		System.out.println("Spark post success");
+		
 		return true;
 	}
 }
