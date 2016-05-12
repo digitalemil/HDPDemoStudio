@@ -15,6 +15,7 @@ export TOPIC=default
 export BROKERLIST=127.0.0.1:9092
 export HIVETABLE=hdp
 export NAMENODE=sandbox:8020
+export SPARKHDFSFOLDER=/user/guest/spark
 
 echo Starting...
 
@@ -54,7 +55,7 @@ cwd=$(pwd)
 echo Starting Spark-Streaming
 
 # Remove the following "#" in case you want to stream via Spark. Make sure you adjusted the YARN memory settings before.
-/usr/hdp/current/spark-client/bin/spark-submit --class com.hortonworks.digitalemil.hdpdemostudio.Spark --master yarn-cluster --num-executors 1 --driver-memory 512m --executor-memory 512m --executor-cores 2 $cwd/SparkStreaming/target/HDPDemoStudioSparkStreaming-*-distribution.jar  $ZOOKEEPER $SPARKTOPIC $SPARKTOPIC 1 $SOLRURL $SOLRCORE $HBASETABLE $HBASECF >/tmp/spark.out 2>/tmp/spark.err &
+/usr/hdp/current/spark-client/bin/spark-submit --class com.hortonworks.digitalemil.hdpdemostudio.Spark --master yarn-cluster --num-executors 1 --driver-memory 512m --executor-memory 512m --executor-cores 2 $cwd/SparkStreaming/target/HDPDemoStudioSparkStreaming-*-distribution.jar  $ZOOKEEPER $SPARKTOPIC $SPARKTOPIC 1 $SOLRURL $SOLRCORE $HBASETABLE $HBASECF $NAMENODE $SPARKHDFSFOLDER $ZOOKEEPERZNODEPARENT >/tmp/spark.out 2>/tmp/spark.err &
 
 echo Deploying Storm topology
 

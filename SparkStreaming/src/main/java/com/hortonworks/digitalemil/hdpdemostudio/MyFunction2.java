@@ -6,11 +6,8 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.function.Function;
 
 public class MyFunction2 implements Function<JavaRDD<String>, Void> {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	public static String solrurl;
+	public static String solrurl, namenode, folder;
 	static transient public HTable table;
 	
 	public String getSolrurl() {
@@ -23,13 +20,20 @@ public class MyFunction2 implements Function<JavaRDD<String>, Void> {
 
 	public static void setTable(HTable t) {
 		table = t;
-		System.out.println("Table set: "+t);
 	}
 
 	public void setSolrurl(String solrurl) {
 		this.solrurl = solrurl;
 	}
 	
+	public void setNamenode(String nn) {
+		this.namenode = nn;
+	}
+
+	public void setFolder(String f) {
+		this.folder = f;
+	}
+
 	public Void call(JavaRDD<String> rdd) throws Exception {
 		System.out.println("MyFunction2 call(): " + rdd+" table: "+table+" solrurl: "+solrurl);
 		if(rdd.count()> 0) {
@@ -39,10 +43,19 @@ public class MyFunction2 implements Function<JavaRDD<String>, Void> {
 				table.flushCommits();
 				table.close();
 			}
+			else {
+				System.err.println("table==null");			
+			}
 		
 			if(solrurl!= null) {
 				Spark.post(solrurl+"?commit=true", "");
-				String fname= "hdfs://sandbox:8020/user/guest/spark/dstream"+rdd.hashCode()+"_"+System.currentTimeMillis();
+			}
+			else {
+				System.err.println("SolrURL==null");
+			}
+			
+			if(folder!= null && namenode != null) {
+				String fname= namenode+folder+rdd.hashCode()+"_"+System.currentTimeMillis();
 				try {
 					rdd.saveAsTextFile(fname);		
 				}
@@ -53,9 +66,11 @@ public class MyFunction2 implements Function<JavaRDD<String>, Void> {
 							
 				}
 			}
+			else {
+				System.out.println("Namenode or hdfs folder == null: "+namenode+" "+folder);
+			}
 		
 		}
-		System.out.println("MyFunction2 done");
 		return null;
 	}
 }

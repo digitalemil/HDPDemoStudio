@@ -36,7 +36,7 @@ import org.apache.solr.common.SolrDocument;
  */
 public class AppStudioDataSearcher extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	protected String hbasetable, hbasecolumnfamily, solrurl, pivotfield;
+	protected String hbasetable, hbasecolumnfamily, hbaserootdir, zookeeperznodeparent, solrurl, pivotfield;
 	protected boolean pivot = false;
 	double max = 1.0;
 
@@ -54,6 +54,9 @@ public class AppStudioDataSearcher extends HttpServlet {
 
 		hbasetable = cfg.getInitParameter("hbasetable");
 		hbasecolumnfamily = cfg.getInitParameter("hbasecolumnfamily");
+		hbaserootdir = cfg.getInitParameter("hbaserootdir");
+		zookeeperznodeparent = cfg.getInitParameter("zookeeperznodeparent");
+			
 		solrurl = cfg.getInitParameter("solrurl");
 		pivotfield = cfg.getInitParameter("pivotfield");
 
@@ -63,7 +66,9 @@ public class AppStudioDataSearcher extends HttpServlet {
 		System.out.println("Search Params: ");
 		System.out.println("HBase Table: " + hbasetable);
 		System.out.println("HBase ColumnFamily: " + hbasecolumnfamily);
-		System.out.println("HBase Solr URL: " + solrurl);
+		System.out.println("HBase Rootdir: " + hbaserootdir);
+		System.out.println("zookeeper.znode.parent: "+ zookeeperznodeparent);		
+		System.out.println("Solr URL: " + solrurl);
 	}
 
 	/**
@@ -206,8 +211,8 @@ public class AppStudioDataSearcher extends HttpServlet {
 		
 		try {
 		Configuration config = (Configuration) HBaseConfiguration.create();
-		config.set("zookeeper.znode.parent", "/hbase-unsecure");
-		config.set("hbase.rootdir", "hdfs://127.0.0.1:8020/apps/hbase/data/");
+		config.set("zookeeper.znode.parent", zookeeperznodeparent);
+		config.set("hbase.rootdir", hbaserootdir);
 		System.out.println("config: "+config);
 		
 		HTable table = new HTable(config, hbasetable);
@@ -264,8 +269,8 @@ public class AppStudioDataSearcher extends HttpServlet {
 	public String getHBaseData() throws IOException {
 		StringBuffer ret = new StringBuffer();
 		Configuration config = (Configuration) HBaseConfiguration.create();
-		config.set("zookeeper.znode.parent", "/hbase-unsecure");
-		config.set("hbase.rootdir", "hdfs://127.0.0.1:8020/apps/hbase/data/");
+		config.set("zookeeper.znode.parent", zookeeperznodeparent);
+		config.set("hbase.rootdir", hbaserootdir);
 		HTable table = new HTable(config, hbasetable);
 		Scan scan = new Scan();
 		scan.setCaching(1024);

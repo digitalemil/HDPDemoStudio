@@ -37,6 +37,7 @@
 			<outputDirectory></outputDirectory>
 			<includes></includes>
 		</dependencySet>
+
 		<dependencySet>
 			<useProjectArtifact>false</useProjectArtifact>
 			<useTransitiveDependencies>true</useTransitiveDependencies>
@@ -46,7 +47,7 @@
 			<directoryMode>0755</directoryMode>
 			<outputDirectory></outputDirectory>
 			<includes></includes>
-			<excludes><exclude>org.apache.storm:storm-core</exclude></excludes>
 		</dependencySet>
+
 	</dependencySets>
 </assembly>

@@ -233,8 +233,8 @@ public class Setup {
 
 		//setupBanana(solrurl, solrcore);
 
-		createWebXml(path, topic, hbasetable, hbasecf, pivotfield, solrurl,
-				solrcore, brokerlist);
+		createWebXml(path, topic, hbasetable, hbasecf, hbaserootdir, pivotfield, solrurl,
+				solrcore, brokerlist, zookeeperZnodeParent);
 
 		createIndexHTML(path, showLocation, solrurl);
 
@@ -355,8 +355,8 @@ public class Setup {
 	}
 
 	private static void createWebXml(String path, String topic,
-			String hbasetable, String hbasecf, String pivotfield,
-			String solrurl, String solrcore, String brokerlist) {
+			String hbasetable, String hbasecf, String hbaserootdir, String pivotfield,
+			String solrurl, String solrcore, String brokerlist, String znodeparent) {
 		try {
 			br = new BufferedReader(new InputStreamReader(new Setup()
 					.getClass().getResourceAsStream("/srcweb.xml")));
@@ -375,6 +375,12 @@ public class Setup {
 				}
 				if (line.contains("HBASECF")) {
 					line = "<param-value>" + hbasecf + "</param-value>";
+				}
+				if (line.contains("HBASEROOTDIR")) {
+					line = "<param-value>" + hbaserootdir + "</param-value>";
+				}
+				if (line.contains("ZOOKEEPERZNODEPARENT")) {
+					line = "<param-value>" + znodeparent + "</param-value>";
 				}
 				if (line.contains("SOLRURL")) {
 					line = "<param-value>" + solrurl + solrcore

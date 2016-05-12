@@ -71,4 +71,3 @@ public class GenerateData {
 
 	}
 }
-//java -classpath "/usr/hdp/2.2.0.0-2041/hadoop-yarn/*:/usr/hdp/2.2.0.0-2041/hadoop-mapreduce/*:/opt/solr/lw/lib/*:/usr/hdp/2.2.0.0-2041/hadoop/lib/*:/opt/solr/lucidworks-hadoop-lws-job-1.3.0.jar:/usr/hdp/2.2.0.0-2041/hadoop/*" com.lucidworks.hadoop.ingest.IngestJob -DcsvFieldMapping=0=id,1=location,2=event_timestamp,3=deviceid,4=heartrate,5=user -DcsvDelimiter="|" -Dlww.commit.on.close=true -cls com.lucidworks.hadoop.ingest.CSVIngestMapper -c hr -i ./csv -of com.lucidworks.hadoop.io.LWMapRedOutputFormat -s http://172.16.227.204:8983/solr

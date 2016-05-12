@@ -34,11 +34,11 @@
 		<servlet-name>AppStudioDataListener</servlet-name>
 		<url-pattern>/data/publish</url-pattern>
 	</servlet-mapping>
-		<servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>AppStudioDataListener</servlet-name>
 		<url-pattern>/tech/storm</url-pattern>
 	</servlet-mapping>
-		<servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>AppStudioDataListener</servlet-name>
 		<url-pattern>/tech/spark</url-pattern>
 	</servlet-mapping>
@@ -54,6 +54,14 @@
 		<init-param>
 			<param-name>hbasecolumnfamily</param-name>
 			<param-value>HBASECF</param-value>
+		</init-param>
+		<init-param>
+			<param-name>hbaserootdir</param-name>
+			<param-value>HBASEROOTDIR</param-value>
+		</init-param>
+		<init-param>
+			<param-name>zookeeperznodeparent</param-name>
+			<param-value>ZOOKEEPERZNODEPARENT</param-value>
 		</init-param>
 		<init-param>
 			<param-name>solrurl</param-name>

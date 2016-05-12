@@ -61,8 +61,8 @@ import org.apache.spark.streaming.kafka.KafkaUtils;
  */
 
 public final class Spark {
-  final String defaults[]= {"127.0.0.1:2181", "hr-spark", "hr-spark", "1", "http://sandbox:8983/solr/", "hr", "hr", "all", "hdfs://sandbox:8020/apps/hbase/data/"};
-  String solrurl;
+  final String defaults[]= {"127.0.0.1:2181", "hr-spark", "hr-spark", "1", "http://sandbox:8983/solr/", "hr", "hr", "all", "hdfs://sandbox:8020/apps/hbase/data/", "http://sandbox:8020", "/user/guest/spark", "/hbase-unsecure"};
+  String solrurl, namenode, folder, zookeeperznodeparent;
   private Spark() {
   }
 
@@ -73,10 +73,14 @@ public final class Spark {
   
   public void init(String[] args) {
 	  
-   if (args.length < 9) {
+   if (args.length < 12) {
     	args= defaults;
     }
     solrurl= args[4]+args[5]+"/update/json";
+    namenode= args[9];
+    folder= args[10];
+    zookeeperznodeparent= args[11];
+    
     System.out.println("Starting SparkStreaming for HDPDemoStudio.");
     for(int i= 0; i< args.length; i++) {
     	System.out.println("Argument["+i+"]: "+args[i]);
@@ -101,7 +105,10 @@ public final class Spark {
     solr.setParam(solrurl);
     MyFunction2 hdfsAndSolrCommit= new MyFunction2();
     hdfsAndSolrCommit.setSolrurl(solrurl);
+    hdfsAndSolrCommit.setNamenode(namenode);
+    hdfsAndSolrCommit.setFolder(folder);
     
+     
     MyFunction3 hbase= new MyFunction3();
     hbase.setHbasetable(args[6]);
     hbase.setHbasecf(args[7]);
