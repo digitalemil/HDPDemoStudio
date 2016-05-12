@@ -113,6 +113,7 @@ public final class Spark {
     hbase.setHbasetable(args[6]);
     hbase.setHbasecf(args[7]);
     hbase.setHbaseRootDir(args[8]);
+    hbase.setZNodeParent(zookeeperznodeparent);
     hbase.init();
     MyFunction2 hbaseCommit= new MyFunction2();
     
