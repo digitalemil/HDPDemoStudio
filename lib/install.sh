@@ -35,10 +35,11 @@ rm -fr /opt/lucidworks-hdpsearch/solr/server/logs/*
 chown -R solr /opt/lucidworks-hdpsearch/solr/server/logs
 
 sudo -u solr $SOLR_HOME/bin/solr start
+sleep 5
 sudo -u solr $SOLR_HOME/bin/solr create -c hdp
 
 echo Waiting until Ambari is fully up
-sleep 30
+sleep 60
 
 cwd=$(pwd)
 
